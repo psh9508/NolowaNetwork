@@ -1,0 +1,168 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\system\\worker\\workerbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:system\\worker\\workerbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\models\\message\\inetmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:models\\message\\inetmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\system\\worker\\receiveworker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:system\\worker\\receiveworker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\nolowanetwork.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:nolowanetwork.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\rabbitnetwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:rabbitnetwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\system\\messagecodec.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:system\\messagecodec.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C295C87C-E905-42C3-A638-3EDD11D1816E}|..\\TestConsoleApp\\TestConsoleApp.csproj|f:\\project\\nolowanetwork\\testconsoleapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\inolowanetwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:inolowanetwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|f:\\project\\nolowanetwork\\nolowanetwork\\models\\configuration\\networkconfigurationmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{55523061-7E00-492B-845C-DEAC8A8978F0}|NolowaNetwork.csproj|solutionrelative:models\\configuration\\networkconfigurationmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 247,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ReceiveWorker.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\System\\Worker\\ReceiveWorker.cs",
+              "RelativeDocumentMoniker": "System\\Worker\\ReceiveWorker.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\System\\Worker\\ReceiveWorker.cs",
+              "RelativeToolTip": "System\\Worker\\ReceiveWorker.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-14T03:49:30.023Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WorkerBase.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\System\\Worker\\WorkerBase.cs",
+              "RelativeDocumentMoniker": "System\\Worker\\WorkerBase.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\System\\Worker\\WorkerBase.cs",
+              "RelativeToolTip": "System\\Worker\\WorkerBase.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-14T03:49:29.397Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NolowaNetwork",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\NolowaNetwork.csproj",
+              "RelativeDocumentMoniker": "NolowaNetwork.csproj",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\NolowaNetwork.csproj",
+              "RelativeToolTip": "NolowaNetwork.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-07-14T03:49:28.809Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MessageCodec.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\System\\MessageCodec.cs",
+              "RelativeDocumentMoniker": "System\\MessageCodec.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\System\\MessageCodec.cs",
+              "RelativeToolTip": "System\\MessageCodec.cs",
+              "ViewState": "AQIAAAUAAAAAAAAAAAAhwCAAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-13T14:48:11.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\TestConsoleApp\\Program.cs",
+              "RelativeDocumentMoniker": "..\\TestConsoleApp\\Program.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\TestConsoleApp\\Program.cs",
+              "RelativeToolTip": "..\\TestConsoleApp\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-07T15:13:41.282Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "RabbitNetwork.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\RabbitNetwork.cs",
+              "RelativeDocumentMoniker": "RabbitNetwork.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\RabbitNetwork.cs",
+              "RelativeToolTip": "RabbitNetwork.cs",
+              "ViewState": "AQIAACoAAAAAAAAAAAAYwEEAAABIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-07T15:12:37.454Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "INolowaNetwork.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\INolowaNetwork.cs",
+              "RelativeDocumentMoniker": "INolowaNetwork.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\INolowaNetwork.cs",
+              "RelativeToolTip": "INolowaNetwork.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-07T15:12:23.457Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "INetMessage.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\Models\\Message\\INetMessage.cs",
+              "RelativeDocumentMoniker": "Models\\Message\\INetMessage.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\Models\\Message\\INetMessage.cs",
+              "RelativeToolTip": "Models\\Message\\INetMessage.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-07T15:09:05.217Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "NetworkConfigurationModel.cs",
+              "DocumentMoniker": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\Models\\Configuration\\NetworkConfigurationModel.cs",
+              "RelativeDocumentMoniker": "Models\\Configuration\\NetworkConfigurationModel.cs",
+              "ToolTip": "F:\\Project\\NolowaNetwork\\NolowaNetwork\\Models\\Configuration\\NetworkConfigurationModel.cs",
+              "RelativeToolTip": "Models\\Configuration\\NetworkConfigurationModel.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-07T15:08:38.577Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

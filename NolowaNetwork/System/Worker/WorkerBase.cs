@@ -1,68 +1,85 @@
-﻿using NolowaNetwork.Models.Message;
+using NolowaNetwork.Models.Message;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace NolowaNetwork.System.Worker
 {
-    internal abstract class WorkerBase
+    public interface IWorker
     {
-        private Channel<INetMessage> _channel;
+        Task StartAsync(CancellationToken cancellationToken);
+        Task QueueMessageAsync(string key, dynamic message, CancellationToken cancellationToken = default);
+        Task ReceiveAsync(dynamic message, CancellationToken cancellationToken);
+    }
+
+    public abstract class WorkerBase : IWorker
+    {
+        private ConcurrentDictionary<string, Channel<NetMessageBase>> _channels = new();
 
         private Task? _process = null;
         private bool _isRunning = false;
 
-        protected abstract Task ReceiveAsync(INetMessage message, CancellationToken cancellationToken);
-
-        public WorkerBase()
-        {
-            _channel = Channel.CreateBounded<INetMessage>(new BoundedChannelOptions(1000)
-            {
-                FullMode = BoundedChannelFullMode.Wait,
-                SingleReader = true,
-                SingleWriter = false,
-            });
-        }
+        public abstract Task ReceiveAsync(dynamic message, CancellationToken cancellationToken);
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _isRunning = true;
 
-            _process = Task.Run(async () =>
+            await Parallel.ForEachAsync(_channels, async (channel, cancellationToken) =>
             {
-                while (_isRunning)
+                _ = Task.Run(async () =>
                 {
-                    try
+                    while (_isRunning)
                     {
-                        if (await _channel.Reader.WaitToReadAsync(cancellationToken) == false)
+                        try
                         {
-                            // 현재 channel에 데이터를 읽을 수 없음.
-                            continue;
+                            if (await channel.Value.Reader.WaitToReadAsync(cancellationToken))
+                            {
+                                dynamic data = await channel.Value.Reader.ReadAsync(cancellationToken);
+
+                                await ReceiveAsync(data, cancellationToken);
+                            }
                         }
-
-                        dynamic data = await _channel.Reader.ReadAsync(cancellationToken);
-
-                        await ReceiveAsync(data, cancellationToken);
+                        catch (Exception ex)
+                        {
+                            // log
+                            // this thread never die.
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        // log
-                        throw;
-                    }
-                }
+                });
             });
         }
 
-        public async Task QueueMessageAsync(dynamic message, CancellationToken cancellationToken = default)
+        public bool AddChannel(string key, Channel<NetMessageBase> channel)
+        {
+            if (_channels.ContainsKey(key) == true)
+                return false;
+
+            _channels[key] = channel;
+            
+            return true;
+        }
+
+        public Channel<NetMessageBase>? GetChannel(string key)
+        {
+            return _channels.ContainsKey(key) ? _channels[key] : null;
+        }
+
+        public async Task QueueMessageAsync(string key, dynamic message, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (await _channel.Writer.WaitToWriteAsync(cancellationToken))
+                if (_channels.ContainsKey(key) == false)
+                    throw new InvalidOperationException("");
+
+                if (await _channels[key].Writer.WaitToWriteAsync(cancellationToken))
                 {
-                    await _channel.Writer.WriteAsync(message, cancellationToken);
+                    await _channels[key].Writer.WriteAsync(message, cancellationToken);
                 }
             }
             catch (Exception ex)

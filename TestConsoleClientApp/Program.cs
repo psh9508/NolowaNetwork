@@ -1,10 +1,10 @@
-using NolowaNetwork;
 using NolowaNetwork.Models.Configuration;
+using NolowaNetwork;
 using NolowaNetwork.Models.Message;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
 
-namespace TestConsoleApp
+namespace TestConsoleClientApp
 {
     class TempMessageResolver : IMessageTypeResolver
     {
@@ -41,7 +41,18 @@ namespace TestConsoleApp
                 ServerName = "serverName",
             });
 
-            Console.ReadKey();
+            do
+            {
+                Console.WriteLine("Input message: ");
+
+                var message = Console.ReadLine();
+
+                var messageModel = new TestMessage();
+                messageModel.Message = message;
+                messageModel.Destination = "serverName"; // 임시 목적지
+
+                rabbitNetwork.Send(messageModel);
+            } while (Console.ReadLine()?.Trim() != "exit");
         }
     }
 }

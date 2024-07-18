@@ -1,4 +1,4 @@
-﻿using NolowaNetwork.Models.Configuration;
+using NolowaNetwork.Models.Configuration;
 using NolowaNetwork.System;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -6,6 +6,11 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System;
+using NolowaNetwork.System.Worker;
+using static NolowaNetwork.System.Worker.RabbitWorker;
+using NolowaNetwork.Models.Message;
+using System.Reflection;
+using System.Data.Common;
 
 namespace NolowaNetwork
 {
@@ -13,11 +18,17 @@ namespace NolowaNetwork
     {
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
+        private readonly IWorker _worker;
 
-        public RabbitNetwork(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver)
+        private IConnection _connection;
+        private string _exchangeName = string.Empty;
+        private string _serverName = string.Empty;
+
+        public RabbitNetwork(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, IWorker worker)
         {
             _messageCodec = messageCodec;
             _messageTypeResolver = messageTypeResolver;
+            _worker = worker;
         }
 
         public bool Init(NetworkConfigurationModel configuration)
@@ -26,6 +37,9 @@ namespace NolowaNetwork
 
             if (VerifySetting(setting) == false)
                 return false;
+
+            _exchangeName = setting.ExchangeName;
+            _serverName = setting.ServerName;
 
             var factory = new ConnectionFactory
             {
@@ -37,59 +51,99 @@ namespace NolowaNetwork
                 DispatchConsumersAsync = true,
             };
 
-            var connection = factory.CreateConnection();
-            var channel = connection.CreateModel();
+            _connection = factory.CreateConnection();
+            var channel = _connection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: setting.ExchangeName, type: ExchangeType.Topic);
-            channel.QueueDeclare(queue: setting.ServerName, durable: false, exclusive: false, autoDelete: false,
+            channel.ExchangeDeclare(exchange: _exchangeName, type: ExchangeType.Topic);
+            channel.QueueDeclare(queue: _serverName, durable: false, exclusive: false, autoDelete: false,
                 arguments: new Dictionary<string, object>
                 {
                     ["x-single-active-consumer"] = true,
                     ["x-expires"] = 300000,
                 });
-            channel.QueueBind(queue: setting.ServerName
-                            , exchange: setting.ExchangeName
-                            , routingKey: $@"*.{setting.ServerName}.*");
+            channel.QueueBind(queue: _serverName
+                            , exchange: _exchangeName
+                            , routingKey: $@"*.{_serverName}.*");
 
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += OnConsumerReceived;
 
-            channel.BasicConsume(queue: setting.ServerName, autoAck: true, consumer);
+            channel.BasicConsume(queue: _serverName, autoAck: true, consumer);
+
+            _worker.StartAsync(CancellationToken.None);
 
             return true;
         }
 
+        public void Send(NetMessageBase message)
+        {
+            var channel = _connection.CreateModel();
+
+            var properties = channel.CreateBasicProperties();
+            properties.DeliveryMode = 2; // persistent;
+
+            var encodeMethod = _messageCodec.GetType().GetMethod("Encode").MakeGenericMethod(message.GetType());
+
+            if (encodeMethod is null)
+            {
+                return;
+            }
+
+            var messagePayload = (byte[]?)encodeMethod.Invoke(_messageCodec, [message]);
+
+            if (messagePayload is null)
+            {
+                return;
+            }
+
+            var routingKey = $"{_serverName}.{message.Destination}.{message.GetType().Name}";
+
+            channel.BasicPublish(
+                exchange: _exchangeName,
+                routingKey: routingKey,
+                mandatory: true,
+                basicProperties: properties,
+                body: messagePayload
+            );
+        }
+
         private async Task OnConsumerReceived(object sender, BasicDeliverEventArgs eventArgs)
         {
-            var (sourceServer, targetServer, messageName) = ParseMessage(eventArgs.RoutingKey);
-
-            var messageType = _messageTypeResolver.GetType(messageName);
-
-            if (messageType == null)
+            try
             {
-                // log
-                return;
+                var (sourceServer, targetServer, messageName) = ParseMessage(eventArgs.RoutingKey);
+
+                var messageType = _messageTypeResolver.GetType(messageName);
+
+                if (messageType == null)
+                {
+                    // log
+                    return;
+                }
+
+                var decodeMethod = _messageCodec.GetType().GetMethod("Decode")!.MakeGenericMethod(messageType);
+
+                if (decodeMethod is null)
+                {
+                    // log
+                    return;
+                }
+
+                dynamic? decodeMessage = decodeMethod.Invoke(_messageCodec, [ eventArgs.Body ]);
+
+                if (decodeMessage is null)
+                {
+                    // log
+                    return;
+                }
+
+                var receiveMessage = new NetReceiveMessage(decodeMessage);
+
+                await _worker.QueueMessageAsync(ERabbitWorkerType.RECEIVER.ToString(), receiveMessage, CancellationToken.None);
             }
-
-            var decodeMethod = _messageCodec.GetType().GetMethod("Decode")!.MakeGenericMethod(messageType);
-
-            if (decodeMethod is null)
+            catch (Exception ex)
             {
-                // log
-                return;
             }
-
-            dynamic? decodeMessage = decodeMethod.Invoke(_messageCodec, [eventArgs.Body]);
-
-            if(decodeMessage is null)
-            {
-                // log
-                return;
-            }
-
-
-
-            await Task.Yield();
         }
 
         private (string sourceServer, string targetServer, string messageName) ParseMessage(string routingKey)

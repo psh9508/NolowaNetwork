@@ -8,9 +8,5 @@ namespace NolowaNetwork.Models.Message
 {
     public class NetSendMessage : NetMessageBase
     {
-        public NetSendMessage(NetMessageBase message)
-        {
-            
-        }
     }
 }

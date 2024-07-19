@@ -33,7 +33,7 @@ namespace TestConsoleApp
         {
             Console.WriteLine("Hello, World!");
 
-            var rabbitNetwork = new RabbitNetwork(new MessageCodec(), new TempMessageResolver(), new RabbitWorker(null));
+            var rabbitNetwork = new RabbitNetworkClient(new MessageCodec(), new TempMessageResolver(), new RabbitWorker(null));
             rabbitNetwork.Init(new NetworkConfigurationModel()
             {
                 HostName = "localhost",

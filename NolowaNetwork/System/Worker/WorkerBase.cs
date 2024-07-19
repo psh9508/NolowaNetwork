@@ -13,8 +13,8 @@ namespace NolowaNetwork.System.Worker
     public interface IWorker
     {
         Task StartAsync(CancellationToken cancellationToken);
-        Task QueueMessageAsync(string key, dynamic message, CancellationToken cancellationToken = default);
-        Task ReceiveAsync(dynamic message, CancellationToken cancellationToken);
+        Task QueueMessageAsync(string workerType, dynamic message, CancellationToken cancellationToken = default);
+        Task HandleReceiveMessageAsync(dynamic message, CancellationToken cancellationToken);
     }
 
     public abstract class WorkerBase : IWorker
@@ -24,7 +24,7 @@ namespace NolowaNetwork.System.Worker
         private Task? _process = null;
         private bool _isRunning = false;
 
-        public abstract Task ReceiveAsync(dynamic message, CancellationToken cancellationToken);
+        public abstract Task HandleReceiveMessageAsync(dynamic message, CancellationToken cancellationToken);
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -42,7 +42,7 @@ namespace NolowaNetwork.System.Worker
                             {
                                 dynamic data = await channel.Value.Reader.ReadAsync(cancellationToken);
 
-                                await ReceiveAsync(data, cancellationToken);
+                                await HandleReceiveMessageAsync(data, cancellationToken);
                             }
                         }
                         catch (Exception ex)

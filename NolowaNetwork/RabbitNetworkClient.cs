@@ -14,7 +14,7 @@ using System.Data.Common;
 
 namespace NolowaNetwork
 {
-    public class RabbitNetwork : INolowaNetwork
+    public class RabbitNetworkClient : INolowaNetwork
     {
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
@@ -24,7 +24,7 @@ namespace NolowaNetwork
         private string _exchangeName = string.Empty;
         private string _serverName = string.Empty;
 
-        public RabbitNetwork(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, IWorker worker)
+        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, IWorker worker)
         {
             _messageCodec = messageCodec;
             _messageTypeResolver = messageTypeResolver;
@@ -75,12 +75,19 @@ namespace NolowaNetwork
             return true;
         }
 
-        public void Send(NetMessageBase message)
+        public void Send<T>(T message) where T : NetMessageBase
         {
             var channel = _connection.CreateModel();
 
             var properties = channel.CreateBasicProperties();
             properties.DeliveryMode = 2; // persistent;
+
+            //var sendMessage = new NetSendMessage()
+            //{
+            //    MessageType = typeof(T).Name,
+            //    Payload = message.,
+            //    Destination = message.Destination,
+            //};
 
             var encodeMethod = _messageCodec.GetType().GetMethod("Encode").MakeGenericMethod(message.GetType());
 
@@ -96,7 +103,15 @@ namespace NolowaNetwork
                 return;
             }
 
-            var routingKey = $"{_serverName}.{message.Destination}.{message.GetType().Name}";
+            //var sendMessage = new NetSendMessage()
+            //{
+            //    MessageType = typeof(T).Name,
+            //    Payload = messagePayload,
+            //    Destination = message.Destination,
+            //};
+
+            //var routingKey = $"{_serverName}.{sendMessage.Destination}.{sendMessage.MessageType}";
+            var routingKey = "";
 
             channel.BasicPublish(
                 exchange: _exchangeName,

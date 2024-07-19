@@ -1,0 +1,38 @@
+using NolowaNetwork.Models.Message;
+using NolowaNetwork.System.Worker;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static NolowaNetwork.System.Worker.RabbitWorker;
+
+namespace NolowaNetwork.System
+{
+    public interface IMessageBroker
+    {
+        Task SendMessageAsync(NetMessageBase message, CancellationToken cancellationToken);
+    }
+
+    public class MessageBroker : IMessageBroker
+    {
+        private readonly IWorker _worker;
+
+        public MessageBroker(IWorker worker)
+        {
+            _worker = worker;
+        }
+
+        public async Task SendMessageAsync(NetMessageBase message, CancellationToken cancellationToken)
+        {
+            var sendMessage = new NetSendMessage()
+            {
+                MessageType = message.GetType().Name,
+                Message = message,
+                Destination = message.Destination,
+            };
+
+            await _worker.QueueMessageAsync(ERabbitWorkerType.SENDER.ToString(), sendMessage, cancellationToken);
+        }
+    }
+}

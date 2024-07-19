@@ -33,7 +33,10 @@ namespace TestConsoleClientApp
         {
             Console.WriteLine("Hello, World!");
 
-            var rabbitNetwork = new RabbitNetwork(new MessageCodec(), new TempMessageResolver(), new RabbitWorker(null));
+            var worker = new RabbitWorker(null);
+            var messageBroker = new MessageBroker(worker);
+
+            var rabbitNetwork = new RabbitNetworkClient(new MessageCodec(), new TempMessageResolver(), worker);
             rabbitNetwork.Init(new NetworkConfigurationModel()
             {
                 HostName = "localhost",
@@ -41,18 +44,20 @@ namespace TestConsoleClientApp
                 ServerName = "serverName",
             });
 
+            string message = string.Empty;
+
             do
             {
                 Console.WriteLine("Input message: ");
 
-                var message = Console.ReadLine();
+                message = Console.ReadLine();
 
                 var messageModel = new TestMessage();
                 messageModel.Message = message;
                 messageModel.Destination = "serverName"; // 임시 목적지
 
-                rabbitNetwork.Send(messageModel);
-            } while (Console.ReadLine()?.Trim() != "exit");
+                messageBroker.SendMessageAsync(messageModel, CancellationToken.None).ConfigureAwait(false);
+            } while (message?.Trim() != "exit");
         }
     }
 }

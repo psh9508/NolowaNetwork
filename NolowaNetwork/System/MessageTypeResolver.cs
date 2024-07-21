@@ -1,4 +1,5 @@
-﻿using System;
+using NolowaNetwork.Models.Message;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,12 @@ namespace NolowaNetwork.System
 
         public Type? GetType(string typeName)
         {
-            throw new NotImplementedException();
+            if (typeName is "TestMessage")
+                return typeof(TestMessage);
+            else if(typeName is "NetSendMessage")
+                return typeof(NetSendMessage);
+
+            return null;
         }
 
         public dynamic GetTypeByDynamic(string typeName)

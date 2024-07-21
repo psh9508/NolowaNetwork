@@ -14,7 +14,7 @@ using System.Data.Common;
 
 namespace NolowaNetwork
 {
-    public class RabbitNetworkClient : INolowaNetwork
+    public class RabbitNetworkClient : INolowaNetworkSendable, INolowaNetworkReceivable
     {
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
@@ -24,6 +24,14 @@ namespace NolowaNetwork
         private string _exchangeName = string.Empty;
         private string _serverName = string.Empty;
 
+        // sender용 worker가 필요 없음
+        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver)
+        {
+            _messageCodec = messageCodec;
+            _messageTypeResolver = messageTypeResolver;
+        }
+
+        // receive용 worker가 필요
         public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, IWorker worker)
         {
             _messageCodec = messageCodec;
@@ -70,8 +78,6 @@ namespace NolowaNetwork
 
             channel.BasicConsume(queue: _serverName, autoAck: true, consumer);
 
-            _worker.StartAsync(CancellationToken.None);
-
             return true;
         }
 
@@ -82,36 +88,16 @@ namespace NolowaNetwork
             var properties = channel.CreateBasicProperties();
             properties.DeliveryMode = 2; // persistent;
 
-            //var sendMessage = new NetSendMessage()
-            //{
-            //    MessageType = typeof(T).Name,
-            //    Payload = message.,
-            //    Destination = message.Destination,
-            //};
-
-            var encodeMethod = _messageCodec.GetType().GetMethod("Encode").MakeGenericMethod(message.GetType());
-
-            if (encodeMethod is null)
+            var sendMessage = new NetSendMessage()
             {
-                return;
-            }
+                MessageType = message.MessageType,
+                JsonPayload = message.JsonPayload,
+                Destination = message.Destination,
+            };
 
-            var messagePayload = (byte[]?)encodeMethod.Invoke(_messageCodec, [message]);
+            var messagePayload = _messageCodec.EncodeAsByte(sendMessage);
 
-            if (messagePayload is null)
-            {
-                return;
-            }
-
-            //var sendMessage = new NetSendMessage()
-            //{
-            //    MessageType = typeof(T).Name,
-            //    Payload = messagePayload,
-            //    Destination = message.Destination,
-            //};
-
-            //var routingKey = $"{_serverName}.{sendMessage.Destination}.{sendMessage.MessageType}";
-            var routingKey = "";
+            var routingKey = $"{_serverName}.{sendMessage.Destination}.{nameof(NetSendMessage)}";
 
             channel.BasicPublish(
                 exchange: _exchangeName,
@@ -146,19 +132,30 @@ namespace NolowaNetwork
 
                 dynamic? decodeMessage = decodeMethod.Invoke(_messageCodec, [ eventArgs.Body ]);
 
+                var test = decodeMessage as NetSendMessage;
+
+                var test1 = test.JsonPayload.GetType();
+
+                var test2 = test.JsonPayload;
+
                 if (decodeMessage is null)
                 {
                     // log
                     return;
                 }
 
-                var receiveMessage = new NetReceiveMessage(decodeMessage);
-
-                await _worker.QueueMessageAsync(ERabbitWorkerType.RECEIVER.ToString(), receiveMessage, CancellationToken.None);
+                await ReceiveAsync(decodeMessage);
             }
             catch (Exception ex)
             {
             }
+        }
+
+        public async Task ReceiveAsync(NetMessageBase message)
+        {
+            var receiveMessage = new NetReceiveMessage(message);
+
+            await _worker.QueueMessageAsync(ERabbitWorkerType.RECEIVER.ToString(), receiveMessage, CancellationToken.None);
         }
 
         private (string sourceServer, string targetServer, string messageName) ParseMessage(string routingKey)
@@ -184,5 +181,6 @@ namespace NolowaNetwork
 
             return true;
         }
+
     }
 }

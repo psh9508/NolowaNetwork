@@ -9,7 +9,7 @@ namespace NolowaNetwork.Models.Message
     public class NetMessageBase
     {
         public string MessageType { get; set; } = string.Empty;
-        public dynamic Message { get; set; }
+        public string JsonPayload { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
     }
 }

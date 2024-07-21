@@ -3,27 +3,17 @@ using NolowaNetwork;
 using NolowaNetwork.Models.Message;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
+using Autofac;
+using NolowaNetwork.Module;
+using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace TestConsoleClientApp
 {
-    class TempMessageResolver : IMessageTypeResolver
+    public class MessageHandler : IMessageHandler
     {
-        public void AddType(Type type)
+        public Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-        }
-
-        public Type? GetType(string typeName)
-        {
-            if (typeName is "TestMessage")
-                return typeof(TestMessage);
-
-            return null;
-        }
-
-        public dynamic GetTypeByDynamic(string typeName)
-        {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 
@@ -33,10 +23,14 @@ namespace TestConsoleClientApp
         {
             Console.WriteLine("Hello, World!");
 
-            var worker = new RabbitWorker(null);
-            var messageBroker = new MessageBroker(worker);
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
 
-            var rabbitNetwork = new RabbitNetworkClient(new MessageCodec(), new TempMessageResolver(), worker);
+            new RabbitMQModule().RegisterModule(containerBuilder);
+
+            var container = containerBuilder.Build();
+
+            var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
             rabbitNetwork.Init(new NetworkConfigurationModel()
             {
                 HostName = "localhost",
@@ -44,6 +38,7 @@ namespace TestConsoleClientApp
                 ServerName = "serverName",
             });
 
+            var messageBroker = container.Resolve<IMessageBroker>();
             string message = string.Empty;
 
             do

@@ -1,29 +1,25 @@
+using Autofac;
 using NolowaNetwork;
 using NolowaNetwork.Models.Configuration;
 using NolowaNetwork.Models.Message;
+using NolowaNetwork.Module;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
+using System.Text.Json;
+using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace TestConsoleApp
 {
-    class TempMessageResolver : IMessageTypeResolver
+    public class MessageHandler : IMessageHandler
     {
-        public void AddType(Type type)
+        public Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-        }
+            string messageType = message.MessageType;
+            string jsonPayload = message.JsonPayload;
 
-        public Type? GetType(string typeName)
-        {
-            if (typeName is "TestMessage")
-                return typeof(TestMessage);
+            var test = JsonSerializer.Deserialize<TestMessage>(jsonPayload);
 
-            return null;
-        }
-
-        public dynamic GetTypeByDynamic(string typeName)
-        {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 
@@ -33,7 +29,14 @@ namespace TestConsoleApp
         {
             Console.WriteLine("Hello, World!");
 
-            var rabbitNetwork = new RabbitNetworkClient(new MessageCodec(), new TempMessageResolver(), new RabbitWorker(null));
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
+
+            new RabbitMQModule().RegisterModule(containerBuilder);
+
+            var container = containerBuilder.Build();
+
+            var rabbitNetwork = container.Resolve<INolowaNetworkReceivable>();
             rabbitNetwork.Init(new NetworkConfigurationModel()
             {
                 HostName = "localhost",

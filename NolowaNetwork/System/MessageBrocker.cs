@@ -17,10 +17,12 @@ namespace NolowaNetwork.System
     public class MessageBroker : IMessageBroker
     {
         private readonly IWorker _worker;
+        private readonly IMessageCodec _codec;
 
-        public MessageBroker(IWorker worker)
+        public MessageBroker(IWorker worker, IMessageCodec codec)
         {
             _worker = worker;
+            _codec = codec;
         }
 
         public async Task SendMessageAsync(NetMessageBase message, CancellationToken cancellationToken)
@@ -28,7 +30,7 @@ namespace NolowaNetwork.System
             var sendMessage = new NetSendMessage()
             {
                 MessageType = message.GetType().Name,
-                Message = message,
+                JsonPayload = _codec.EncodeAsJson((TestMessage)message), // T를 제네릭화 해야함
                 Destination = message.Destination,
             };
 

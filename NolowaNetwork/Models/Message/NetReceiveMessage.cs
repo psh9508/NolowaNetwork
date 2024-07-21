@@ -10,7 +10,9 @@ namespace NolowaNetwork.Models.Message
     {
         public NetReceiveMessage(NetMessageBase message)
         {
-            
+            this.MessageType = message.MessageType;
+            this.JsonPayload = message.JsonPayload;
+            this.Destination = message.Destination;
         }
     }
 }

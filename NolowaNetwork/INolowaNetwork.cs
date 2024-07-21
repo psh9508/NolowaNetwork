@@ -11,6 +11,6 @@ namespace NolowaNetwork
     public interface INolowaNetwork
     {
         bool Init(NetworkConfigurationModel configuration);
-        void Send<T>(T message) where T : NetMessageBase;
+        Task SendAsync<T>(T message) where T : NetMessageBase;
     }
 }

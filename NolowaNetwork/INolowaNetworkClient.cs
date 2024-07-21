@@ -10,7 +10,7 @@ namespace NolowaNetwork
 {
     public interface INolowaNetworkClient
     {
-        bool Init(NetworkConfigurationModel configuration);
+        bool Connect(NetworkConfigurationModel configuration);
     }
 
     public interface INolowaNetworkSendable : INolowaNetworkClient

@@ -31,7 +31,7 @@ namespace TestConsoleClientApp
             var container = containerBuilder.Build();
 
             var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
-            rabbitNetwork.Init(new NetworkConfigurationModel()
+            rabbitNetwork.Connect(new NetworkConfigurationModel()
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",
@@ -48,6 +48,7 @@ namespace TestConsoleClientApp
                 message = Console.ReadLine();
 
                 var messageModel = new TestMessage();
+                messageModel.MessageType = messageModel.GetType().Name;
                 messageModel.Message = message;
                 messageModel.Destination = "serverName"; // 임시 목적지
 

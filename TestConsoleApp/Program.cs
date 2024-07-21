@@ -37,7 +37,7 @@ namespace TestConsoleApp
             var container = containerBuilder.Build();
 
             var rabbitNetwork = container.Resolve<INolowaNetworkReceivable>();
-            rabbitNetwork.Init(new NetworkConfigurationModel()
+            rabbitNetwork.Connect(new NetworkConfigurationModel()
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",

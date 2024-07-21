@@ -1,4 +1,5 @@
 using Autofac;
+using NolowaNetwork.RabbitMQNetwork;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
 using System;
@@ -28,7 +29,6 @@ namespace NolowaNetwork.Module
                 .As<INolowaNetworkReceivable>()
                 .SingleInstance();
 
-            builder.RegisterType<NolowaNetwork>().As<INolowaNetwork>();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();
             builder.RegisterType<MessageBroker>().As<IMessageBroker>();

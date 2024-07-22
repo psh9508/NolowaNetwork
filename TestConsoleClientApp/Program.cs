@@ -39,6 +39,12 @@ namespace TestConsoleClientApp
             });
 
             var messageBroker = container.Resolve<IMessageBroker>();
+
+            StartSendMessageTest(messageBroker);
+        }
+
+        private static void StartSendMessageTest(IMessageBroker messageBroker)
+        {
             string message = string.Empty;
 
             do

@@ -11,7 +11,7 @@ namespace NolowaNetwork.System
 {
     public interface IMessageBroker
     {
-        Task SendMessageAsync(NetMessageBase message, CancellationToken cancellationToken);
+        Task SendMessageAsync<T>(T message, CancellationToken cancellationToken) where T : NetMessageBase;
     }
 
     public class MessageBroker : IMessageBroker
@@ -25,12 +25,12 @@ namespace NolowaNetwork.System
             _codec = codec;
         }
 
-        public async Task SendMessageAsync(NetMessageBase message, CancellationToken cancellationToken)
+        public async Task SendMessageAsync<T>(T message, CancellationToken cancellationToken) where T : NetMessageBase
         {
             var sendMessage = new NetSendMessage()
             {
                 MessageType = message.GetType().Name,
-                JsonPayload = _codec.EncodeAsJson((TestMessage)message), // T를 제네릭화 해야함
+                JsonPayload = _codec.EncodeAsJson(message),
                 Destination = message.Destination,
             };
 

@@ -1,12 +1,13 @@
+using NolowaNetwork.Models.Message;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NolowaNetwork.Models.Message
+namespace TestConsoleClientApp
 {
-    public class TestMessage : NetMessageBase
+    internal class ResponseMessage : NetMessageBase
     {
         public string Message { get; set; } = string.Empty;
     }

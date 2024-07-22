@@ -23,9 +23,12 @@ namespace NolowaNetwork.System
 
         public Type? GetType(string typeName)
         {
-            if (typeName is "TestMessage")
-                return typeof(TestMessage);
-            else if(typeName is "NetSendMessage")
+            //if (typeName is "TestMessage")
+            //    return typeof(TestMessage);
+            //else if(typeName is "NetSendMessage")
+            //    return typeof(NetSendMessage);
+
+            if (typeName is "NetSendMessage")
                 return typeof(NetSendMessage);
 
             return null;

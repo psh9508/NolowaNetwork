@@ -40,7 +40,8 @@ namespace TestConsoleClientApp
 
             var messageBroker = container.Resolve<IMessageBroker>();
 
-            StartSendMessageTest(messageBroker);
+            StartTakeMessageTest(messageBroker).ConfigureAwait(false);
+            //StartSendMessageTest(messageBroker);
         }
 
         private static void StartSendMessageTest(IMessageBroker messageBroker)
@@ -61,5 +62,31 @@ namespace TestConsoleClientApp
                 messageBroker.SendMessageAsync(messageModel, CancellationToken.None).ConfigureAwait(false);
             } while (message?.Trim() != "exit");
         }
+
+        private static async Task StartTakeMessageTest(IMessageBroker messageBroker)
+        {
+            string message = string.Empty;
+
+            do
+            {
+                Console.WriteLine("Input message: ");
+
+                message = Console.ReadLine();
+
+                var messageModel = new TestMessage();
+                messageModel.TakeId = Guid.NewGuid().ToString();
+                messageModel.MessageType = messageModel.GetType().Name;
+                messageModel.Message = message;
+                messageModel.Destination = "serverName"; // 임시 목적지
+
+                var response = await messageBroker.TaskMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);
+
+                if(response is null)
+                {
+
+                }
+            }while(message?.Trim() != "exit");
+        }
+
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -15,11 +16,14 @@ namespace NolowaNetwork.System.Worker
         Task StartAsync(CancellationToken cancellationToken);
         Task QueueMessageAsync(string workerType, dynamic message, CancellationToken cancellationToken = default);
         Task HandleReceiveMessageAsync(dynamic message, CancellationToken cancellationToken);
+        Task<T?> TakeMessageAsync<T>(string key, dynamic message, CancellationToken cancellationToken = default) where T : NetMessageBase;
+        Task TakeBackResponseMessage(string key, dynamic response, CancellationToken cancellationToken = default);
     }
 
     public abstract class WorkerBase : IWorker
     {
         private ConcurrentDictionary<string, Channel<NetMessageBase>> _channels = new();
+        protected ConcurrentDictionary<string, Channel<NetMessageBase>> _outboxMap = new();
 
         private Task? _process = null;
         private bool _isRunning = false;
@@ -85,6 +89,76 @@ namespace NolowaNetwork.System.Worker
             catch (Exception ex)
             {
                 // log
+            }
+        }
+        
+        public async Task TakeBackResponseMessage(string key, dynamic response, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (_outboxMap.TryGetValue(key, out var outbox) && await outbox.Writer.WaitToWriteAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    await outbox.Writer.WriteAsync(response, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                // log
+            }
+        }
+
+        public async Task<T?> TakeMessageAsync<T>(string key, dynamic message, CancellationToken cancellationToken = default) where T : NetMessageBase
+        {
+            try
+            {
+                var registeredOutbox = RegisterOutboxChannel(key);
+
+                if (registeredOutbox is null)
+                    return null;
+
+                await QueueMessageAsync(ERabbitWorkerType.SENDER.ToString(), message, cancellationToken);
+
+                var responseMessage = await registeredOutbox.Reader.ReadAsync(cancellationToken);
+
+                if(responseMessage is null)
+                {
+                    // log
+                    return null;
+                }
+
+                return responseMessage as T;
+            }
+            catch (Exception ex)
+            {
+                // log
+            }
+            finally
+            {
+                DeregisterOutboxChannel(key);
+            }
+
+            return null;
+        }
+
+        private Channel<NetMessageBase>? RegisterOutboxChannel(string key)
+        {
+            var outbox = Channel.CreateBounded<NetMessageBase>(10);
+
+            if(_outboxMap.TryAdd(key, outbox) == false)
+            {
+                // log
+                return null;
+            }
+
+            return outbox;
+        }
+
+        private void DeregisterOutboxChannel(string key)
+        {
+            if (_outboxMap.Remove(key, out var channel))
+            {
+                channel.Writer.Complete();
+                return;
             }
         }
     }

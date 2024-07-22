@@ -1,5 +1,6 @@
 using NolowaNetwork.Models.Message;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,10 +54,17 @@ namespace NolowaNetwork.System.Worker
         // 받는 메시지 큐
         private async Task ReceiveInternalAsync(NetReceiveMessage message, CancellationToken cancellationToken)
         {
-            if (_messageHandler is null)
-                throw new InvalidOperationException("IMessageHandler is null. It must be registered before you start.");
+            if (message.IsResponsMessage)
+            {
+                await TakeBackResponseMessage(message.TakeId, message, cancellationToken);
+            }
+            else
+            {
+                if (_messageHandler is null)
+                    throw new InvalidOperationException("IMessageHandler is null. It must be registered before you start.");
 
-            await _messageHandler.HandleAsync(message, cancellationToken).ConfigureAwait(false);
+                await _messageHandler.HandleAsync(message, cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

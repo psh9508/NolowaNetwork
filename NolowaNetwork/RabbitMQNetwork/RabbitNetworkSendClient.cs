@@ -23,29 +23,35 @@ namespace NolowaNetwork.RabbitMQNetwork
 
         public void Send<T>(T message) where T : NetMessageBase
         {
-            var channel = _connection.CreateModel();
+            try
+            {
+                var channel = _connection.CreateModel();
 
-            var properties = channel.CreateBasicProperties();
-            properties.DeliveryMode = 2; // persistent;
+                var properties = channel.CreateBasicProperties();
+                properties.DeliveryMode = 2; // persistent;
 
-            //var sendMessage = new NetSendMessage()
-            //{
-            //    MessageType = message.MessageType,
-            //    JsonPayload = message.JsonPayload,
-            //    Destination = message.Destination,
-            //};
+                //var sendMessage = new NetSendMessage()
+                //{
+                //    MessageType = message.MessageType,
+                //    JsonPayload = message.JsonPayload,
+                //    Destination = message.Destination,
+                //};
 
-            var messagePayload = _messageCodec.EncodeAsByte(message);
+                var messagePayload = _messageCodec.EncodeAsByte(message);
 
-            var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
+                var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
 
-            channel.BasicPublish(
-                exchange: _exchangeName,
-                routingKey: routingKey,
-                mandatory: true,
-                basicProperties: properties,
-                body: messagePayload
-            );
+                channel.BasicPublish(
+                    exchange: _exchangeName,
+                    routingKey: routingKey,
+                    mandatory: true,
+                    basicProperties: properties,
+                    body: messagePayload
+                );
+            }
+            catch (Exception ex)
+            {
+            }
         }
     }
 }

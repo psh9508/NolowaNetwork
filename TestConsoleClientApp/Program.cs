@@ -5,7 +5,6 @@ using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
 using Autofac;
 using NolowaNetwork.Module;
-using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace TestConsoleClientApp
 {

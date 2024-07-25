@@ -44,7 +44,7 @@ namespace NolowaNetwork.System
             {
                 MessageType = message.GetType().Name,
                 Destination = message.Destination,
-                IsResponsMessage = true,
+                //IsResponsMessage = true,
                 TakeId = message.TakeId,
             };
 

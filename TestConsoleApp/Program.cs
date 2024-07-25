@@ -19,6 +19,9 @@ namespace TestConsoleApp
 
             var test = JsonSerializer.Deserialize<TestMessage>(jsonPayload);
 
+            // 다시 받은 서버로 보내주는 로직 추가
+            // 이때 메시지의 IsResponsMessage = true
+
             return Task.CompletedTask;
         }
     }

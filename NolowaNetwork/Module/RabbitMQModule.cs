@@ -31,7 +31,7 @@ namespace NolowaNetwork.Module
 
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();
-            builder.RegisterType<MessageBroker>().As<IMessageBroker>();
+            builder.RegisterType<MessageBroker>().As<IMessageBroker>().InstancePerLifetimeScope();
         }
     }
 }

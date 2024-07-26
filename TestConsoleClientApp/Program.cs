@@ -18,7 +18,7 @@ namespace TestConsoleClientApp
 
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
 
@@ -47,7 +47,7 @@ namespace TestConsoleClientApp
 
             var messageBroker = container.Resolve<IMessageBroker>();
 
-            StartTakeMessageTest(messageBroker).ConfigureAwait(false);
+            await StartTakeMessageTest(messageBroker);
             //StartSendMessageTest(messageBroker);
         }
 

@@ -12,11 +12,11 @@ namespace TestConsoleApp
 {
     public class MessageHandler : IMessageHandler
     {
-        private readonly IJob _job;
+        private readonly ILifetimeScope _scope;
 
-        public MessageHandler(IJob job)
+        public MessageHandler(ILifetimeScope scope)
         {
-            _job = job;
+            _scope = scope;
         }
 
         public async Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
@@ -26,27 +26,18 @@ namespace TestConsoleApp
 
             var receivedMessage = JsonSerializer.Deserialize<TestMessage>(jsonPayload);
 
-            // 받은 메시지를 이용해 이 서버에서 뭔가 진행했다고 가정
-            
+            using var scope = _scope.BeginLifetimeScope();
 
-            // 다시 받은 서버로 보내주는 로직 추가
-            // 이때 메시지의 IsResponsMessage = true
-            var sendMessage = new TestMessage()
-            {
-                TakeId = receivedMessage.TakeId,
-                MessageType = messageType,
-                Message = "잘 도착해서 처리 완료 하고 돌려드립니다.",
-                Origin = receivedMessage.Origin,
-                Source = "serverName:1",
-                Destination = receivedMessage.Origin, // 받은곳으로 돌려줌
-                IsResponsMessage = true,
-            };
+            var job = scope.Resolve<IJob>();
+
+            // 받은 메시지를 이용해 이 서버에서 뭔가 진행했다고 가정
+            await job.RunAsync(receivedMessage);
         }
     }
 
     public interface IJob
     {
-        Task Run(TestMessage receivedMessage);
+        Task RunAsync(TestMessage receivedMessage);
     }
 
     public class Job : IJob
@@ -58,10 +49,25 @@ namespace TestConsoleApp
             _messageBroker = messageBroker;
         }
 
-        public async Task Run(TestMessage receivedMessage)
+        public async Task RunAsync(TestMessage receivedMessage)
         {
             await Task.Delay(1000);
             Console.WriteLine($"I got a message : {receivedMessage.Message}");
+
+            // 다시 받은 서버로 보내주는 로직 추가
+            // 이때 메시지의 IsResponsMessage = true
+            var sendMessage = new TestMessage()
+            {
+                TakeId = receivedMessage.TakeId,
+                MessageType = receivedMessage.GetType().Name,
+                Message = "잘 도착해서 처리 완료 하고 돌려드립니다.",
+                Origin = receivedMessage.Origin,
+                Source = "serverName:1",
+                Destination = receivedMessage.Origin, // 받은곳으로 돌려줌
+                IsResponsMessage = true,
+            };
+
+            await _messageBroker.SendMessageAsync(sendMessage, CancellationToken.None);
         }
     }
 
@@ -84,15 +90,15 @@ namespace TestConsoleApp
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",
-                ServerName = "serverName:1:sender",
+                ServerName = "serverName:1",
             });
 
-            var rabbitNetwork = container.Resolve<INolowaNetworkReceivable>();
-            rabbitNetwork.Connect(new NetworkConfigurationModel()
+            var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
+            rabbitNetwork.Connect(new ()
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",
-                ServerName = "serverName:1",
+                ServerName = "serverName:1:sender",
             });
 
             Console.ReadKey();

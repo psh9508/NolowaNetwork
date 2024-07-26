@@ -19,7 +19,7 @@ namespace NolowaNetwork.RabbitMQNetwork
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
 
-        private IConnection _connection;
+        private IConnection? _connection;
         private string _exchangeName = string.Empty;
         private string _serverName = string.Empty;
        

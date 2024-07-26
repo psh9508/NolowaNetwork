@@ -34,7 +34,15 @@ namespace TestConsoleClientApp
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",
-                ServerName = "serverName",
+                ServerName = "serverName:2:sender",
+            });
+
+            var rabbitReceiver = container.Resolve<INolowaNetworkReceivable>();
+            rabbitReceiver.Connect(new NetworkConfigurationModel()
+            {
+                HostName = "localhost",
+                ExchangeName = "exchangeName",
+                ServerName = "serverName:2",
             });
 
             var messageBroker = container.Resolve<IMessageBroker>();
@@ -56,7 +64,7 @@ namespace TestConsoleClientApp
                 var messageModel = new TestMessage();
                 messageModel.MessageType = messageModel.GetType().Name;
                 messageModel.Message = message;
-                messageModel.Destination = "serverName"; // 임시 목적지
+                messageModel.Destination = "serverName:1"; // 임시 목적지
 
                 messageBroker.SendMessageAsync(messageModel, CancellationToken.None).ConfigureAwait(false);
             } while (message?.Trim() != "exit");
@@ -76,7 +84,9 @@ namespace TestConsoleClientApp
                 messageModel.TakeId = Guid.NewGuid().ToString();
                 messageModel.MessageType = messageModel.GetType().Name;
                 messageModel.Message = message;
-                messageModel.Destination = "serverName"; // 임시 목적지
+                messageModel.Origin = "serverName:2";
+                messageModel.Source = "serverName:2";
+                messageModel.Destination = "serverName:1";
 
                 var response = await messageBroker.TaskMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);
 

@@ -30,10 +30,15 @@ namespace NolowaNetwork.System
         {
             var sendMessage = new NetSendMessage()
             {
+                TakeId = message.TakeId,
                 MessageType = message.GetType().Name,
-                JsonPayload = _codec.EncodeAsJson(message),
+                Origin = message.Origin,
+                Source = message.Source,
                 Destination = message.Destination,
+                IsResponsMessage = message.IsResponsMessage,
             };
+
+            sendMessage.JsonPayload = _codec.EncodeAsJson(sendMessage);
 
             await _worker.QueueMessageAsync(ERabbitWorkerType.SENDER.ToString(), sendMessage, cancellationToken);
         }
@@ -42,10 +47,12 @@ namespace NolowaNetwork.System
         {
             var sendMessage = new NetSendMessage()
             {
+                TakeId = message.TakeId,
                 MessageType = message.GetType().Name,
+                Origin = message.Origin,
+                Source = message.Source,
                 Destination = message.Destination,
                 //IsResponsMessage = true,
-                TakeId = message.TakeId,
             };
 
             sendMessage.JsonPayload = _codec.EncodeAsJson(sendMessage);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TestConsoleApp
 {
-    internal class TestMessage : NetMessageBase
+    public class TestMessage : NetMessageBase
     {
         public string Message { get; set; } = string.Empty;
     }

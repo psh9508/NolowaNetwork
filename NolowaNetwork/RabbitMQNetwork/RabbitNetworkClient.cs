@@ -43,9 +43,12 @@ namespace NolowaNetwork.RabbitMQNetwork
                 {
                     HostName = setting.HostName,
                     VirtualHost = "/",
-                    Port = 5672,
-                    UserName = "admin",
-                    Password = "admin",
+                    //Port = 5672,
+                    Port = 30501,
+                    //UserName = "admin",
+                    //Password = "admin",
+                    UserName = "owadmin",
+                    Password = "owrhksflwk123!",
                     DispatchConsumersAsync = true,
                 };
 

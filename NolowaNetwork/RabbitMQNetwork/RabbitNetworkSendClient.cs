@@ -30,13 +30,6 @@ namespace NolowaNetwork.RabbitMQNetwork
                 var properties = channel.CreateBasicProperties();
                 properties.DeliveryMode = 2; // persistent;
 
-                //var sendMessage = new NetSendMessage()
-                //{
-                //    MessageType = message.MessageType,
-                //    JsonPayload = message.JsonPayload,
-                //    Destination = message.Destination,
-                //};
-
                 var messagePayload = _messageCodec.EncodeAsByte(message);
 
                 var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";

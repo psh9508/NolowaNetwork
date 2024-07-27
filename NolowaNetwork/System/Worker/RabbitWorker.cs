@@ -20,8 +20,9 @@ namespace NolowaNetwork.System.Worker
         // 서버단에서 구현되어 처리 된다.
         private readonly IMessageHandler _messageHandler;
         private readonly INolowaNetworkSendable _nolowaNetworkSender;
+        
 
-        public RabbitWorker(IMessageHandler messageHandler, INolowaNetworkSendable nolowaNetworkSendable)
+        public RabbitWorker(IMessageHandler messageHandler, INolowaNetworkSendable nolowaNetworkSendable, IMessageCodec messageCodec) : base(messageCodec)
         {
             _messageHandler = messageHandler;
             _nolowaNetworkSender = nolowaNetworkSendable;

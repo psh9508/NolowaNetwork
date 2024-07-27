@@ -46,8 +46,9 @@ namespace TestConsoleClientApp
             });
 
             var messageBroker = container.Resolve<IMessageBroker>();
+            var messageCodec = container.Resolve<IMessageCodec>();
 
-            await StartTakeMessageTest(messageBroker);
+            await StartTakeMessageTest(messageBroker, messageCodec);
             //StartSendMessageTest(messageBroker);
         }
 
@@ -70,7 +71,7 @@ namespace TestConsoleClientApp
             } while (message?.Trim() != "exit");
         }
 
-        private static async Task StartTakeMessageTest(IMessageBroker messageBroker)
+        private static async Task StartTakeMessageTest(IMessageBroker messageBroker, IMessageCodec messageCodec)
         {
             string message = string.Empty;
 
@@ -88,13 +89,18 @@ namespace TestConsoleClientApp
                 messageModel.Source = "serverName:2";
                 messageModel.Destination = "serverName:1";
 
+                messageModel.JsonPayload = messageCodec.EncodeAsJson(messageModel);
+
                 var response = await messageBroker.TaskMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);
 
                 if(response is null)
                 {
-
+                    Console.WriteLine("response is null");
+                    continue;
                 }
-            }while(message?.Trim() != "exit");
+
+                Console.WriteLine($"I get a message : {response.Message}");
+            } while(message?.Trim() != "exit");
         }
 
     }

@@ -22,11 +22,18 @@ namespace NolowaNetwork.System.Worker
 
     public abstract class WorkerBase : IWorker
     {
+        private readonly IMessageCodec _codec;
+
         private ConcurrentDictionary<string, Channel<NetMessageBase>> _channels = new();
         protected ConcurrentDictionary<string, Channel<NetMessageBase>> _outboxMap = new();
 
         private Task? _process = null;
         private bool _isRunning = false;
+
+        protected WorkerBase(IMessageCodec codec)
+        {
+            _codec = codec;
+        }
 
         public abstract Task HandleReceiveMessageAsync(dynamic message, CancellationToken cancellationToken);
 
@@ -126,7 +133,7 @@ namespace NolowaNetwork.System.Worker
                     return null;
                 }
 
-                return responseMessage as T;
+                return _codec.DecodeJson<T>(responseMessage);
             }
             catch (Exception ex)
             {

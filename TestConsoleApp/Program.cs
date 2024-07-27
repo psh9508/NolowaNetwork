@@ -30,7 +30,6 @@ namespace TestConsoleApp
 
             var job = scope.Resolve<IJob>();
 
-            // 받은 메시지를 이용해 이 서버에서 뭔가 진행했다고 가정
             await job.RunAsync(receivedMessage);
         }
     }
@@ -51,16 +50,17 @@ namespace TestConsoleApp
 
         public async Task RunAsync(TestMessage receivedMessage)
         {
+            // 받은 메시지를 이용해 이 서버에서 뭔가 진행했다고 가정
             await Task.Delay(1000);
             Console.WriteLine($"I got a message : {receivedMessage.Message}");
 
             // 다시 받은 서버로 보내주는 로직 추가
             // 이때 메시지의 IsResponsMessage = true
-            var sendMessage = new TestMessage()
+            var sendMessage = new ResponseMessage()
             {
                 TakeId = receivedMessage.TakeId,
                 MessageType = receivedMessage.GetType().Name,
-                Message = "잘 도착해서 처리 완료 하고 돌려드립니다.",
+                Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.",
                 Origin = receivedMessage.Origin,
                 Source = "serverName:1",
                 Destination = receivedMessage.Origin, // 받은곳으로 돌려줌

@@ -38,7 +38,7 @@ namespace NolowaNetwork.System
                 IsResponsMessage = message.IsResponsMessage,
             };
 
-            sendMessage.JsonPayload = _codec.EncodeAsJson(sendMessage);
+            sendMessage.JsonPayload = _codec.EncodeAsJson(message); // 이것도 TakeMessage 처럼 전달 받은 메시지에 들어있어야 할 것 같음
 
             await _worker.QueueMessageAsync(ERabbitWorkerType.SENDER.ToString(), sendMessage, cancellationToken);
         }
@@ -52,12 +52,13 @@ namespace NolowaNetwork.System
                 Origin = message.Origin,
                 Source = message.Source,
                 Destination = message.Destination,
+                JsonPayload = message.JsonPayload,
                 //IsResponsMessage = true,
             };
 
-            sendMessage.JsonPayload = _codec.EncodeAsJson(sendMessage);
+            //sendMessage.JsonPayload = _codec.EncodeAsJson(message);
 
-            return await _worker.TakeMessageAsync<NetSendMessage>(key, sendMessage, cancellationToken) as T;
+            return await _worker.TakeMessageAsync<T>(key, sendMessage, cancellationToken);
         }
     }
 }

@@ -85,20 +85,12 @@ namespace TestConsoleApp
 
             var container = containerBuilder.Build();
 
-            var rabbitSender = container.Resolve<INolowaNetworkReceivable>();
-            rabbitSender.Connect(new()
+            var rabbitClient = container.Resolve<INolowaNetworkClient>();
+            rabbitClient.Connect(new()
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",
                 ServerName = "serverName:1",
-            });
-
-            var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
-            rabbitNetwork.Connect(new ()
-            {
-                HostName = "localhost",
-                ExchangeName = "exchangeName",
-                ServerName = "serverName:1:sender",
             });
 
             Console.ReadKey();

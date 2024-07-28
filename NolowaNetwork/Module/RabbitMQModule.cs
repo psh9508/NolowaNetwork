@@ -24,11 +24,12 @@ namespace NolowaNetwork.Module
                 .As<INolowaNetworkSendable>()
                 .SingleInstance();
 
-            builder.RegisterType<RabbitNetworkClient>()
-                .UsingConstructor(typeof(IMessageCodec), typeof(IMessageTypeResolver), typeof(IWorker))
-                .As<INolowaNetworkReceivable>()
-                .SingleInstance();
+            //builder.RegisterType<RabbitNetworkClient>()
+            //    .UsingConstructor(typeof(IMessageCodec), typeof(IMessageTypeResolver), typeof(IWorker))
+            //    .As<INolowaNetworkReceivable>()
+            //    .SingleInstance();
 
+            builder.RegisterType<RabbitNetworkClient>().As<INolowaNetworkClient>().SingleInstance();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();
             builder.RegisterType<MessageBroker>().As<IMessageBroker>().InstancePerLifetimeScope();

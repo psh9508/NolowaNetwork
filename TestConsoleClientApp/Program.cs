@@ -29,16 +29,24 @@ namespace TestConsoleClientApp
 
             var container = containerBuilder.Build();
 
-            var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
-            rabbitNetwork.Connect(new NetworkConfigurationModel()
-            {
-                HostName = "localhost",
-                ExchangeName = "exchangeName",
-                ServerName = "serverName:2:sender",
-            });
+            //var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
+            //rabbitNetwork.Connect(new NetworkConfigurationModel()
+            //{
+            //    HostName = "localhost",
+            //    ExchangeName = "exchangeName",
+            //    ServerName = "serverName:2:sender",
+            //});
 
-            var rabbitReceiver = container.Resolve<INolowaNetworkReceivable>();
-            rabbitReceiver.Connect(new NetworkConfigurationModel()
+            //var rabbitReceiver = container.Resolve<INolowaNetworkReceivable>();
+            //rabbitReceiver.Connect(new NetworkConfigurationModel()
+            //{
+            //    HostName = "localhost",
+            //    ExchangeName = "exchangeName",
+            //    ServerName = "serverName:2",
+            //});
+
+            var rabbitNetwork = container.Resolve<INolowaNetworkClient>();
+            rabbitNetwork.Connect(new NetworkConfigurationModel()
             {
                 HostName = "localhost",
                 ExchangeName = "exchangeName",

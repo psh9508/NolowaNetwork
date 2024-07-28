@@ -11,15 +11,11 @@ namespace NolowaNetwork
     public interface INolowaNetworkClient
     {
         bool Connect(NetworkConfigurationModel configuration);
+        Task ReceiveAsync(NetMessageBase message);
     }
 
     public interface INolowaNetworkSendable : INolowaNetworkClient
     {
         void Send<T>(T message) where T : NetMessageBase;
-    }
-
-    public interface INolowaNetworkReceivable : INolowaNetworkClient
-    {
-        Task ReceiveAsync(NetMessageBase message);
     }
 }

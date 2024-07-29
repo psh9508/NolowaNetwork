@@ -18,16 +18,6 @@ namespace NolowaNetwork.Module
             builder.RegisterType<RabbitWorker>().As<IWorker>()
                 .OnActivated(async x => await x.Instance.StartAsync(CancellationToken.None))
                 .SingleInstance();
-            
-            builder.RegisterType<RabbitNetworkClient>()
-                .UsingConstructor(typeof(IMessageCodec), typeof(IMessageTypeResolver))
-                .As<INolowaNetworkSendable>()
-                .SingleInstance();
-
-            //builder.RegisterType<RabbitNetworkClient>()
-            //    .UsingConstructor(typeof(IMessageCodec), typeof(IMessageTypeResolver), typeof(IWorker))
-            //    .As<INolowaNetworkReceivable>()
-            //    .SingleInstance();
 
             builder.RegisterType<RabbitNetworkClient>().As<INolowaNetworkClient>().SingleInstance();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();

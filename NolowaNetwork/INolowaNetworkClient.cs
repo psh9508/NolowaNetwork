@@ -11,11 +11,7 @@ namespace NolowaNetwork
     public interface INolowaNetworkClient
     {
         bool Connect(NetworkConfigurationModel configuration);
-        Task ReceiveAsync(NetMessageBase message);
-    }
-
-    public interface INolowaNetworkSendable : INolowaNetworkClient
-    {
         void Send<T>(T message) where T : NetMessageBase;
+        Task ReceiveAsync(NetMessageBase message);
     }
 }

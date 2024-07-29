@@ -14,25 +14,17 @@ using System.Data.Common;
 
 namespace NolowaNetwork.RabbitMQNetwork
 {
-    public partial class RabbitNetworkClient : INolowaNetworkSendable
+    public partial class RabbitNetworkClient : INolowaNetworkClient
     {
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
-        private readonly IWorker _worker;
+        private readonly Lazy<IWorker> _worker; // 데이터를 받는 곳에서만 필요하다. 그때만 실제 객체를 생성해서 순환참조를 막는다.
 
         private IConnection? _connection;
         private string _exchangeName = string.Empty;
         private string _serverName = string.Empty;
 
-        // sender용 worker가 필요 없음
-        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver)
-        {
-            _messageCodec = messageCodec;
-            _messageTypeResolver = messageTypeResolver;
-        }
-
-        // receive용 worker가 필요
-        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, IWorker worker)
+        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, Lazy<IWorker> worker)
         {
             _messageCodec = messageCodec;
             _messageTypeResolver = messageTypeResolver;
@@ -118,22 +110,8 @@ namespace NolowaNetwork.RabbitMQNetwork
             }
             catch (Exception ex)
             {
+                // log
             }
-        }
-
-        private bool VerifySetting(NetworkConfigurationModel model)
-        {
-            if (model is null)
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(model.HostName))
-            {
-                return false;
-            }
-
-            return true;
         }
 
         private async Task OnConsumerReceived(object sender, BasicDeliverEventArgs eventArgs)
@@ -178,7 +156,7 @@ namespace NolowaNetwork.RabbitMQNetwork
         {
             var receiveMessage = new NetReceiveMessage(message);
 
-            await _worker.QueueMessageAsync(ERabbitWorkerType.RECEIVER.ToString(), receiveMessage, CancellationToken.None);
+            await _worker.Value.QueueMessageAsync(ERabbitWorkerType.RECEIVER.ToString(), receiveMessage, CancellationToken.None);
         }
 
         private (string sourceServer, string targetServer, string messageName) ParseMessage(string routingKey)
@@ -188,6 +166,21 @@ namespace NolowaNetwork.RabbitMQNetwork
             return (sourceServer: parsedKey[0]
                   , targetServer: parsedKey[1]
                   , messageName: parsedKey[2]);
+        }
+
+        private bool VerifySetting(NetworkConfigurationModel model)
+        {
+            if (model is null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(model.HostName))
+            {
+                return false;
+            }
+
+            return true;
         }
 
     }

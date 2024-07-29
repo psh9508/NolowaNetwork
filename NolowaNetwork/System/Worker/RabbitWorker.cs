@@ -19,13 +19,13 @@ namespace NolowaNetwork.System.Worker
 
         // 서버단에서 구현되어 처리 된다.
         private readonly IMessageHandler _messageHandler;
-        private readonly INolowaNetworkSendable _nolowaNetworkSender;
-        
+        private readonly INolowaNetworkClient _nolowaNetwork;
 
-        public RabbitWorker(IMessageHandler messageHandler, INolowaNetworkSendable nolowaNetworkSendable, IMessageCodec messageCodec) : base(messageCodec)
+
+        public RabbitWorker(IMessageHandler messageHandler, INolowaNetworkClient nolowaNetwork, IMessageCodec messageCodec) : base(messageCodec)
         {
             _messageHandler = messageHandler;
-            _nolowaNetworkSender = nolowaNetworkSendable;
+            _nolowaNetwork = nolowaNetwork;
 
             AddChannel(ERabbitWorkerType.RECEIVER.ToString(), Channel.CreateBounded<NetMessageBase>(new BoundedChannelOptions(1000)
             {
@@ -49,7 +49,7 @@ namespace NolowaNetwork.System.Worker
         // 보낼 메시지 큐
         private async Task ReceiveInternalAsync(NetSendMessage message, CancellationToken cancellationToken)
         {
-            _nolowaNetworkSender.Send(message);
+            _nolowaNetwork.Send(message);
         }
 
         // 받는 메시지 큐

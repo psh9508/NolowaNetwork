@@ -12,7 +12,7 @@ namespace NolowaNetwork.System
     public interface IMessageBroker
     {
         Task SendMessageAsync<T>(T message, CancellationToken cancellationToken) where T : NetMessageBase;
-        Task<T?> TaskMessageAsync<T>(string key, NetMessageBase message, CancellationToken cancellationToken) where T : NetMessageBase;
+        Task<T?> TakeMessageAsync<T>(string key, NetMessageBase message, CancellationToken cancellationToken) where T : NetMessageBase;
     }
 
     public class MessageBroker : IMessageBroker
@@ -43,7 +43,7 @@ namespace NolowaNetwork.System
             await _worker.QueueMessageAsync(ERabbitWorkerType.SENDER.ToString(), sendMessage, cancellationToken);
         }
 
-        public async Task<T?> TaskMessageAsync<T>(string key, NetMessageBase message, CancellationToken cancellationToken) where T : NetMessageBase
+        public async Task<T?> TakeMessageAsync<T>(string key, NetMessageBase message, CancellationToken cancellationToken) where T : NetMessageBase
         {
             var sendMessage = new NetSendMessage()
             {

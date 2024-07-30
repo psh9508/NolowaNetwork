@@ -85,7 +85,7 @@ namespace TestConsoleClientApp
 
                 messageModel.JsonPayload = messageCodec.EncodeAsJson(messageModel);
 
-                var response = await messageBroker.TaskMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);
+                var response = await messageBroker.TakeMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);
 
                 if(response is null)
                 {

@@ -55,7 +55,7 @@ namespace TestConsoleClientApp
 
                 message = Console.ReadLine();
 
-                var sendMessage = messageMaker.MakeStartMessage<TestMessage>("serverName:1");
+                var sendMessage = messageMaker.MakeStartMessage<TestMessage>("serverName:2","serverName:1");
                 sendMessage.Message = message;
 
                 messageBroker.SendMessageAsync(sendMessage, CancellationToken.None).ConfigureAwait(false);
@@ -72,8 +72,8 @@ namespace TestConsoleClientApp
 
                 message = Console.ReadLine();
 
-                var messageModel = messageMaker.MakeTakeMessage<TestMessage>("serverName:1");
-
+                var messageModel = messageMaker.MakeTakeMessage<TestMessage>("serverName:2", "serverName:1");
+                messageModel.Message = message;
 
                 //var messageModel = new TestMessage();
                 //messageModel.TakeId = Guid.NewGuid().ToString();

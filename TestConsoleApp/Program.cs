@@ -42,10 +42,12 @@ namespace TestConsoleApp
     public class Job : IJob
     {
         private readonly IMessageBroker _messageBroker;
+        private readonly IMessageMaker _messageMaker;
 
-        public Job(IMessageBroker messageBroker)
+        public Job(IMessageBroker messageBroker, IMessageMaker messageMaker)
         {
             _messageBroker = messageBroker;
+            _messageMaker = messageMaker;
         }
 
         public async Task RunAsync(TestMessage receivedMessage)
@@ -54,18 +56,20 @@ namespace TestConsoleApp
             await Task.Delay(1000);
             Console.WriteLine($"I got a message : {receivedMessage.Message}");
 
-            // 다시 받은 서버로 보내주는 로직 추가
-            // 이때 메시지의 IsResponsMessage = true
-            var sendMessage = new ResponseMessage()
-            {
-                TakeId = receivedMessage.TakeId,
-                MessageType = receivedMessage.GetType().Name,
-                Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.",
-                Origin = receivedMessage.Origin,
-                Source = "serverName:1",
-                Destination = receivedMessage.Origin, // 받은곳으로 돌려줌
-                IsResponsMessage = true,
-            };
+            var sendMessage = _messageMaker.MakeResponseMessage<ResponseMessage>("serverName:1", receivedMessage);
+            sendMessage.Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.";
+
+            //var sendMessage = new ResponseMessage()
+            //{
+            //    TakeId = receivedMessage.TakeId,
+            //    MessageType = receivedMessage.GetType().Name,
+            //    Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.",
+            //    Origin = receivedMessage.Origin,
+            //    Source = "serverName:1",
+            //    Destination = receivedMessage.Origin, // 받은곳으로 돌려줌
+            //    IsResponsMessage = true,
+            //};
+
 
             await _messageBroker.SendMessageAsync(sendMessage, CancellationToken.None);
         }

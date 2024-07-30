@@ -20,6 +20,7 @@ namespace NolowaNetwork.Module
                 .SingleInstance();
 
             builder.RegisterType<RabbitNetworkClient>().As<INolowaNetworkClient>().SingleInstance();
+            builder.RegisterType<MessageMaker>().As<IMessageMaker>();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();
             builder.RegisterType<MessageBroker>().As<IMessageBroker>().InstancePerLifetimeScope();

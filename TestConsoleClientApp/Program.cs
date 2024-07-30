@@ -29,22 +29,6 @@ namespace TestConsoleClientApp
 
             var container = containerBuilder.Build();
 
-            //var rabbitNetwork = container.Resolve<INolowaNetworkSendable>();
-            //rabbitNetwork.Connect(new NetworkConfigurationModel()
-            //{
-            //    HostName = "localhost",
-            //    ExchangeName = "exchangeName",
-            //    ServerName = "serverName:2:sender",
-            //});
-
-            //var rabbitReceiver = container.Resolve<INolowaNetworkReceivable>();
-            //rabbitReceiver.Connect(new NetworkConfigurationModel()
-            //{
-            //    HostName = "localhost",
-            //    ExchangeName = "exchangeName",
-            //    ServerName = "serverName:2",
-            //});
-
             var rabbitNetwork = container.Resolve<INolowaNetworkClient>();
             rabbitNetwork.Connect(new NetworkConfigurationModel()
             {
@@ -55,12 +39,13 @@ namespace TestConsoleClientApp
 
             var messageBroker = container.Resolve<IMessageBroker>();
             var messageCodec = container.Resolve<IMessageCodec>();
+            var messageMaker = container.Resolve<IMessageMaker>();
 
-            await StartTakeMessageTest(messageBroker, messageCodec);
-            //StartSendMessageTest(messageBroker);
+            await StartTakeMessageTest(messageBroker, messageCodec, messageMaker);
+            //StartSendMessageTest(messageBroker, messageMaker);
         }
 
-        private static void StartSendMessageTest(IMessageBroker messageBroker)
+        private static void StartSendMessageTest(IMessageBroker messageBroker, IMessageMaker messageMaker)
         {
             string message = string.Empty;
 
@@ -70,16 +55,14 @@ namespace TestConsoleClientApp
 
                 message = Console.ReadLine();
 
-                var messageModel = new TestMessage();
-                messageModel.MessageType = messageModel.GetType().Name;
-                messageModel.Message = message;
-                messageModel.Destination = "serverName:1"; // 임시 목적지
+                var sendMessage = messageMaker.MakeStartMessage<TestMessage>("serverName:2","serverName:1");
+                sendMessage.Message = message;
 
-                messageBroker.SendMessageAsync(messageModel, CancellationToken.None).ConfigureAwait(false);
+                messageBroker.SendMessageAsync(sendMessage, CancellationToken.None).ConfigureAwait(false);
             } while (message?.Trim() != "exit");
         }
 
-        private static async Task StartTakeMessageTest(IMessageBroker messageBroker, IMessageCodec messageCodec)
+        private static async Task StartTakeMessageTest(IMessageBroker messageBroker, IMessageCodec messageCodec, IMessageMaker messageMaker)
         {
             string message = string.Empty;
 
@@ -89,13 +72,16 @@ namespace TestConsoleClientApp
 
                 message = Console.ReadLine();
 
-                var messageModel = new TestMessage();
-                messageModel.TakeId = Guid.NewGuid().ToString();
-                messageModel.MessageType = messageModel.GetType().Name;
+                var messageModel = messageMaker.MakeTakeMessage<TestMessage>("serverName:2", "serverName:1");
                 messageModel.Message = message;
-                messageModel.Origin = "serverName:2";
-                messageModel.Source = "serverName:2";
-                messageModel.Destination = "serverName:1";
+
+                //var messageModel = new TestMessage();
+                //messageModel.TakeId = Guid.NewGuid().ToString();
+                //messageModel.MessageType = messageModel.GetType().Name;
+                //messageModel.Message = message;
+                //messageModel.Origin = "serverName:2";
+                //messageModel.Source = "serverName:2";
+                //messageModel.Destination = "serverName:1";
 
                 messageModel.JsonPayload = messageCodec.EncodeAsJson(messageModel);
 

@@ -83,7 +83,7 @@ namespace TestConsoleClientApp
                 //messageModel.Source = "serverName:2";
                 //messageModel.Destination = "serverName:1";
 
-                messageModel.JsonPayload = messageCodec.EncodeAsJson(messageModel);
+                //messageModel.JsonPayload = messageCodec.EncodeAsJson(messageModel);
 
                 var response = await messageBroker.TakeMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);
 

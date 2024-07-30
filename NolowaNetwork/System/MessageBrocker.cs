@@ -53,10 +53,10 @@ namespace NolowaNetwork.System
                 Source = message.Source,
                 Destination = message.Destination,
                 JsonPayload = message.JsonPayload,
-                //IsResponsMessage = true,
+                IsResponsMessage = true,
             };
 
-            //sendMessage.JsonPayload = _codec.EncodeAsJson(message);
+            sendMessage.JsonPayload = _codec.EncodeAsJson(message);
 
             return await _worker.TakeMessageAsync<T>(key, sendMessage, cancellationToken);
         }

@@ -25,10 +25,13 @@ namespace NolowaNetwork.Module
 
         public void SetConfiguration(ContainerBuilder builder)
         {
+            string workingDirectory = Environment.CurrentDirectory;
+            string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+
             var environment = Environment.GetEnvironmentVariable("RUN_ENVIRONMENT");
 
-            var configuration =  new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+            var configuration =  new ConfigurationBuilder()                
+                .SetBasePath(projectDirectory)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{environment ?? "Production"}.json", optional: true)
                 .AddEnvironmentVariables()

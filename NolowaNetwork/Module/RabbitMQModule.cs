@@ -1,13 +1,8 @@
 using Autofac;
+using Microsoft.Extensions.Configuration;
 using NolowaNetwork.RabbitMQNetwork;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace NolowaNetwork.Module
 {
@@ -24,6 +19,22 @@ namespace NolowaNetwork.Module
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();
             builder.RegisterType<MessageBroker>().As<IMessageBroker>().InstancePerLifetimeScope();
+
+            SetConfiguration(builder);
+        }
+
+        public void SetConfiguration(ContainerBuilder builder)
+        {
+            var environment = Environment.GetEnvironmentVariable("RUN_ENVIRONMENT");
+
+            var configuration =  new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environment ?? "Production"}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            builder.RegisterInstance<IConfiguration>(configuration);
         }
     }
 }

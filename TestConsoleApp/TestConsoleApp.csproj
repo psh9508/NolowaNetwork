@@ -11,4 +11,10 @@
     <ProjectReference Include="..\NolowaNetwork\NolowaNetwork.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
 using Autofac;
+using Microsoft.Extensions.Configuration;
 using NolowaNetwork;
 using NolowaNetwork.Models.Configuration;
 using NolowaNetwork.Models.Message;
@@ -56,20 +57,8 @@ namespace TestConsoleApp
             await Task.Delay(1000);
             Console.WriteLine($"I got a message : {receivedMessage.Message}");
 
-            var sendMessage = _messageMaker.MakeResponseMessage<ResponseMessage>("serverName:1", receivedMessage);
+            var sendMessage = _messageMaker.MakeResponseMessage<ResponseMessage>("server:1", receivedMessage);
             sendMessage.Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.";
-
-            //var sendMessage = new ResponseMessage()
-            //{
-            //    TakeId = receivedMessage.TakeId,
-            //    MessageType = receivedMessage.GetType().Name,
-            //    Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.",
-            //    Origin = receivedMessage.Origin,
-            //    Source = "serverName:1",
-            //    Destination = receivedMessage.Origin, // 받은곳으로 돌려줌
-            //    IsResponsMessage = true,
-            //};
-
 
             await _messageBroker.SendMessageAsync(sendMessage, CancellationToken.None);
         }
@@ -86,16 +75,15 @@ namespace TestConsoleApp
             containerBuilder.RegisterType<Job>().As<IJob>();
 
             new RabbitMQModule().RegisterModule(containerBuilder);
+            new RabbitMQModule().SetConfiguration(containerBuilder);
 
             var container = containerBuilder.Build();
 
+            var configuration = container.Resolve<IConfiguration>();
+            var serverSettingModel = configuration.GetSection("Network").GetSection("RabbitMQ").Get<NetworkConfigurationModel>();
+
             var rabbitClient = container.Resolve<INolowaNetworkClient>();
-            rabbitClient.Connect(new()
-            {
-                HostName = "localhost",
-                ExchangeName = "exchangeName",
-                ServerName = "serverName:1",
-            });
+            rabbitClient.Connect(serverSettingModel);
 
             Console.ReadKey();
         }

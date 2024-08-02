@@ -53,7 +53,7 @@ namespace NolowaNetwork.System
                 Source = message.Source,
                 Destination = message.Destination,
                 JsonPayload = message.JsonPayload,
-                IsResponsMessage = true,
+                IsResponsMessage = false,
             };
 
             sendMessage.JsonPayload = _codec.EncodeAsJson(message);

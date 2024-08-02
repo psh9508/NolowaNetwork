@@ -39,12 +39,7 @@ namespace TestConsoleClientApp
             var serverSettingModel = configuration.GetSection("Network").GetSection("RabbitMQ").Get<NetworkConfigurationModel>();
 
             var rabbitNetwork = container.Resolve<INolowaNetworkClient>();
-            rabbitNetwork.Connect(new NetworkConfigurationModel()
-            {
-                HostName = serverSettingModel.HostName,
-                ExchangeName = serverSettingModel.ExchangeName,
-                ServerName = serverSettingModel.ServerName,
-            });
+            rabbitNetwork.Connect(serverSettingModel);
 
             await StartTakeMessageTest(messageBroker, messageCodec, messageMaker, serverSettingModel);
             //StartSendMessageTest(messageBroker, messageMaker);
@@ -77,7 +72,7 @@ namespace TestConsoleClientApp
 
                 message = Console.ReadLine();
 
-                var messageModel = messageMaker.MakeTakeMessage<TestMessage>(serverSettingModel.ServerName, "serverName:1");
+                var messageModel = messageMaker.MakeTakeMessage<TestMessage>(serverSettingModel.ServerName, "server:1");
                 messageModel.Message = message;
 
                 var response = await messageBroker.TakeMessageAsync<ResponseMessage>(messageModel.TakeId, messageModel, CancellationToken.None);

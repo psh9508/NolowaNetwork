@@ -57,7 +57,7 @@ namespace TestConsoleApp
             await Task.Delay(1000);
             Console.WriteLine($"I got a message : {receivedMessage.Message}");
 
-            var sendMessage = _messageMaker.MakeResponseMessage<ResponseMessage>("serverName:1", receivedMessage);
+            var sendMessage = _messageMaker.MakeResponseMessage<ResponseMessage>("server:1", receivedMessage);
             sendMessage.Message = $"당신에게 받은 메시지는 {receivedMessage.Message} 입니다. 잘 도착해서 처리 완료 하고 돌려드립니다.";
 
             await _messageBroker.SendMessageAsync(sendMessage, CancellationToken.None);
@@ -83,12 +83,7 @@ namespace TestConsoleApp
             var serverSettingModel = configuration.GetSection("Network").GetSection("RabbitMQ").Get<NetworkConfigurationModel>();
 
             var rabbitClient = container.Resolve<INolowaNetworkClient>();
-            rabbitClient.Connect(new()
-            {
-                HostName = serverSettingModel.HostName,
-                ExchangeName = serverSettingModel.ExchangeName,
-                ServerName = serverSettingModel.ServerName,
-            });
+            rabbitClient.Connect(serverSettingModel);
 
             Console.ReadKey();
         }

@@ -48,8 +48,8 @@ namespace NolowaNetwork.RabbitMQNetwork
 
                 var factory = new ConnectionFactory
                 {
-                    HostName = setting.HostName,
-                    VirtualHost = "/",
+                    HostName = setting.Address,
+                    VirtualHost = setting.HostName,
                     Port = 5672,
                     UserName = "admin",
                     Password = "admin",

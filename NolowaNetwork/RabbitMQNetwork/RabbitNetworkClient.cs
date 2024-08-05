@@ -124,13 +124,22 @@ namespace NolowaNetwork.RabbitMQNetwork
 
                 var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
 
-                channel.BasicPublish(
+                var retryPolicy = Policy.Handle<SocketException>().Or<BrokerUnreachableException>()
+                                        .WaitAndRetry(RETRY_COUNT, retryAttempt => TimeSpan.FromSeconds(retryAttempt * _random.Next(1 * retryAttempt, 2 * retryAttempt)), (exception, timespan) =>
+                                        {
+                                            //timespan.TotalSeconds,
+                                            //exception.Message
+                                        });
+                retryPolicy.Execute(() =>
+                {
+                    channel.BasicPublish(
                     exchange: _exchangeName,
                     routingKey: routingKey,
                     mandatory: true,
                     basicProperties: properties,
                     body: messagePayload
-                );
+                    );
+                });
             }
             catch (Exception ex)
             {

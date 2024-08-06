@@ -11,11 +11,19 @@ using static NolowaNetwork.System.Worker.RabbitWorker;
 using NolowaNetwork.Models.Message;
 using System.Reflection;
 using System.Data.Common;
+using Polly.Retry;
+using Polly;
+using System.Net.Sockets;
+using RabbitMQ.Client.Exceptions;
 
 namespace NolowaNetwork.RabbitMQNetwork
 {
     public partial class RabbitNetworkClient : INolowaNetworkClient
     {
+        private const int RETRY_COUNT = 4;
+        private readonly Random _random = new Random();
+        private RetryPolicy _retryPolicy;
+
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
         private readonly Lazy<IWorker> _worker; // 데이터를 받는 곳에서만 필요하다. 그때만 실제 객체를 생성해서 순환참조를 막는다.
@@ -29,6 +37,12 @@ namespace NolowaNetwork.RabbitMQNetwork
             _messageCodec = messageCodec;
             _messageTypeResolver = messageTypeResolver;
             _worker = worker;
+            _retryPolicy = Policy.Handle<SocketException>().Or<BrokerUnreachableException>()
+                                .WaitAndRetry(RETRY_COUNT, retryAttempt => TimeSpan.FromSeconds(retryAttempt * _random.Next(1 * retryAttempt, 2 * retryAttempt)), (exception, timespan) =>
+                                {
+                                    //timespan.TotalSeconds,
+                                    //exception.Message
+                                });
         }
 
         public bool Connect(NetworkConfigurationModel configuration)
@@ -59,7 +73,17 @@ namespace NolowaNetwork.RabbitMQNetwork
                     DispatchConsumersAsync = true,
                 };
 
-                _connection = factory.CreateConnection();
+                _retryPolicy.Execute(() =>
+                {
+                    _connection = factory.CreateConnection();
+                });
+
+                if(_connection is null || _connection.IsOpen == false)
+                {
+                    // log
+                    return false;
+                }
+
                 var channel = _connection.CreateModel();
 
                 channel.ExchangeDeclare(exchange: _exchangeName, type: ExchangeType.Topic);
@@ -99,14 +123,17 @@ namespace NolowaNetwork.RabbitMQNetwork
                 var messagePayload = _messageCodec.EncodeAsByte(message);
 
                 var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
-
-                channel.BasicPublish(
+                
+                _retryPolicy.Execute(() =>
+                {
+                    channel.BasicPublish(
                     exchange: _exchangeName,
                     routingKey: routingKey,
                     mandatory: true,
                     basicProperties: properties,
                     body: messagePayload
-                );
+                    );
+                });
             }
             catch (Exception ex)
             {

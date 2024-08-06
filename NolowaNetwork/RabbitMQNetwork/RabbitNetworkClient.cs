@@ -22,6 +22,7 @@ namespace NolowaNetwork.RabbitMQNetwork
     {
         private const int RETRY_COUNT = 4;
         private readonly Random _random = new Random();
+        private RetryPolicy _retryPolicy;
 
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
@@ -36,6 +37,12 @@ namespace NolowaNetwork.RabbitMQNetwork
             _messageCodec = messageCodec;
             _messageTypeResolver = messageTypeResolver;
             _worker = worker;
+            _retryPolicy = Policy.Handle<SocketException>().Or<BrokerUnreachableException>()
+                                .WaitAndRetry(RETRY_COUNT, retryAttempt => TimeSpan.FromSeconds(retryAttempt * _random.Next(1 * retryAttempt, 2 * retryAttempt)), (exception, timespan) =>
+                                {
+                                    //timespan.TotalSeconds,
+                                    //exception.Message
+                                });
         }
 
         public bool Connect(NetworkConfigurationModel configuration)
@@ -66,14 +73,7 @@ namespace NolowaNetwork.RabbitMQNetwork
                     DispatchConsumersAsync = true,
                 };
 
-                var retryPolicy = Policy.Handle<SocketException>().Or<BrokerUnreachableException>()
-                                        .WaitAndRetry(RETRY_COUNT, retryAttempt => TimeSpan.FromSeconds(retryAttempt * _random.Next(1 * retryAttempt, 2 * retryAttempt)), (exception, timespan) =>
-                                        {
-                                            //timespan.TotalSeconds,
-                                            //exception.Message
-                                        });
-
-                retryPolicy.Execute(() =>
+                _retryPolicy.Execute(() =>
                 {
                     _connection = factory.CreateConnection();
                 });
@@ -123,14 +123,8 @@ namespace NolowaNetwork.RabbitMQNetwork
                 var messagePayload = _messageCodec.EncodeAsByte(message);
 
                 var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
-
-                var retryPolicy = Policy.Handle<SocketException>().Or<BrokerUnreachableException>()
-                                        .WaitAndRetry(RETRY_COUNT, retryAttempt => TimeSpan.FromSeconds(retryAttempt * _random.Next(1 * retryAttempt, 2 * retryAttempt)), (exception, timespan) =>
-                                        {
-                                            //timespan.TotalSeconds,
-                                            //exception.Message
-                                        });
-                retryPolicy.Execute(() =>
+                
+                _retryPolicy.Execute(() =>
                 {
                     channel.BasicPublish(
                     exchange: _exchangeName,

@@ -25,6 +25,7 @@ namespace NolowaNetwork.Module
 
         public void SetConfiguration(ContainerBuilder builder)
         {
+            // 프로젝트 특성상 프로젝트 bin 폴더가 아닌 각각의 실행폴더에서 setting 가져올 수 있도록 함
             string workingDirectory = Environment.CurrentDirectory;
             string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 

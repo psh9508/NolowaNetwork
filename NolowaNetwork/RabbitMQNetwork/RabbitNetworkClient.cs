@@ -15,6 +15,7 @@ using Polly.Retry;
 using Polly;
 using System.Net.Sockets;
 using RabbitMQ.Client.Exceptions;
+using Serilog;
 
 namespace NolowaNetwork.RabbitMQNetwork
 {
@@ -24,6 +25,7 @@ namespace NolowaNetwork.RabbitMQNetwork
         private readonly Random _random = new Random();
         private RetryPolicy _retryPolicy;
 
+        private readonly ILogger _logger;
         private readonly IMessageCodec _messageCodec;
         private readonly IMessageTypeResolver _messageTypeResolver;
         private readonly Lazy<IWorker> _worker; // 데이터를 받는 곳에서만 필요하다. 그때만 실제 객체를 생성해서 순환참조를 막는다.
@@ -32,7 +34,7 @@ namespace NolowaNetwork.RabbitMQNetwork
         private string _exchangeName = string.Empty;
         private string _serverName = string.Empty;
 
-        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, Lazy<IWorker> worker)
+        public RabbitNetworkClient(IMessageCodec messageCodec, IMessageTypeResolver messageTypeResolver, Lazy<IWorker> worker, ILogger logger)
         {
             _messageCodec = messageCodec;
             _messageTypeResolver = messageTypeResolver;
@@ -43,35 +45,36 @@ namespace NolowaNetwork.RabbitMQNetwork
                                     //timespan.TotalSeconds,
                                     //exception.Message
                                 });
+            _logger = logger;
         }
 
         public bool Connect(NetworkConfigurationModel configuration)
         {
+            if (_connection?.IsOpen == true)
+                return true;
+
+            var setting = configuration;
+
+            if (VerifySetting(setting) == false)
+                return false;
+
+            var factory = new ConnectionFactory
+            {
+                HostName = setting.Address,
+                VirtualHost = setting.HostName,
+                Port = 5672,
+                UserName = "admin",
+                Password = "admin",
+                //Port = 30501,
+                //UserName = "owadmin",
+                //Password = "owrhksflwk123!",
+                DispatchConsumersAsync = true,
+            };
+
             try
             {
-                if (_connection?.IsOpen == true)
-                    return true;
-
-                var setting = configuration;
-
-                if (VerifySetting(setting) == false)
-                    return false;
-
                 _exchangeName = setting.ExchangeName;
                 _serverName = setting.ServerName;
-
-                var factory = new ConnectionFactory
-                {
-                    HostName = setting.Address,
-                    VirtualHost = setting.HostName,
-                    Port = 5672,
-                    UserName = "admin",
-                    Password = "admin",
-                    //Port = 30501,
-                    //UserName = "owadmin",
-                    //Password = "owrhksflwk123!",
-                    DispatchConsumersAsync = true,
-                };
 
                 _retryPolicy.Execute(() =>
                 {
@@ -80,7 +83,7 @@ namespace NolowaNetwork.RabbitMQNetwork
 
                 if(_connection is null || _connection.IsOpen == false)
                 {
-                    // log
+                    _logger.Error("Connection is null or not opened");
                     return false;
                 }
 
@@ -106,13 +109,15 @@ namespace NolowaNetwork.RabbitMQNetwork
             }
             catch (Exception ex)
             {
-                // log
+                _logger.Error(ex, "Connection is failed! {HostName} {VirtualHost} {Port} {UserName}", factory.HostName, factory.VirtualHost, factory.Port, factory.UserName);
                 throw;
             }
         }
 
         public void Send<T>(T message) where T : NetMessageBase
         {
+            var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
+
             try
             {
                 var channel = _connection.CreateModel();
@@ -121,8 +126,6 @@ namespace NolowaNetwork.RabbitMQNetwork
                 properties.DeliveryMode = 2; // persistent;
 
                 var messagePayload = _messageCodec.EncodeAsByte(message);
-
-                var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
                 
                 _retryPolicy.Execute(() =>
                 {
@@ -137,7 +140,7 @@ namespace NolowaNetwork.RabbitMQNetwork
             }
             catch (Exception ex)
             {
-                // log
+                _logger.Error(ex, "Send failed! {routingKey} {@message}", routingKey, message);
             }
         }
 
@@ -151,7 +154,7 @@ namespace NolowaNetwork.RabbitMQNetwork
 
                 if (messageType == null)
                 {
-                    // log
+                    _logger.Error("messageType is null {messageName}", messageName);
                     return;
                 }
 
@@ -159,7 +162,7 @@ namespace NolowaNetwork.RabbitMQNetwork
 
                 if (decodeMethod is null)
                 {
-                    // log
+                    _logger.Error("decodeMethod is null");
                     return;
                 }
 
@@ -167,7 +170,7 @@ namespace NolowaNetwork.RabbitMQNetwork
 
                 if (decodeMessage is null)
                 {
-                    // log
+                    _logger.Error("decodeMessage is null");
                     return;
                 }
 
@@ -175,7 +178,7 @@ namespace NolowaNetwork.RabbitMQNetwork
             }
             catch (Exception ex)
             {
-                // log
+                _logger.Error(ex, ex.ToString());
             }
         }
 

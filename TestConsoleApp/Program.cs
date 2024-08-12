@@ -8,7 +8,6 @@ using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
 using Serilog;
 using System.Text.Json;
-using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace TestConsoleApp
 {

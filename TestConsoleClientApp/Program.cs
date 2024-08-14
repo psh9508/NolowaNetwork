@@ -6,6 +6,7 @@ using NolowaNetwork.System.Worker;
 using Autofac;
 using NolowaNetwork.Module;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace TestConsoleClientApp
 {
@@ -25,6 +26,12 @@ namespace TestConsoleClientApp
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            containerBuilder.RegisterInstance(Log.Logger);
 
             new RabbitMQModule().RegisterModule(containerBuilder);
             new RabbitMQModule().SetConfiguration(containerBuilder);

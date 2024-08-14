@@ -6,8 +6,8 @@ using NolowaNetwork.Models.Message;
 using NolowaNetwork.Module;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
+using Serilog;
 using System.Text.Json;
-using static NolowaNetwork.System.Worker.RabbitWorker;
 
 namespace TestConsoleApp
 {
@@ -73,6 +73,12 @@ namespace TestConsoleApp
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
             containerBuilder.RegisterType<Job>().As<IJob>();
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            containerBuilder.RegisterInstance(Log.Logger);
 
             new RabbitMQModule().RegisterModule(containerBuilder);
             new RabbitMQModule().SetConfiguration(containerBuilder);

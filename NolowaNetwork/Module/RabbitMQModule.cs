@@ -1,6 +1,6 @@
 using Autofac;
 using Microsoft.Extensions.Configuration;
-using NolowaNetwork.RabbitMQNetwork;
+using NolowaNetwork.Protocols.RabbitMQNetwork;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
 

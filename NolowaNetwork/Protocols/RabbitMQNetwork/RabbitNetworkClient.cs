@@ -11,7 +11,7 @@ using System.Net.Sockets;
 using RabbitMQ.Client.Exceptions;
 using Serilog;
 
-namespace NolowaNetwork.RabbitMQNetwork
+namespace NolowaNetwork.Protocols.RabbitMQNetwork
 {
     public partial class RabbitNetworkClient : INolowaNetworkClient
     {
@@ -75,7 +75,7 @@ namespace NolowaNetwork.RabbitMQNetwork
                     _connection = factory.CreateConnection();
                 });
 
-                if(_connection is null || _connection.IsOpen == false)
+                if (_connection is null || _connection.IsOpen == false)
                 {
                     _logger.Error("Connection is null or not opened");
                     return false;
@@ -120,7 +120,7 @@ namespace NolowaNetwork.RabbitMQNetwork
                 properties.DeliveryMode = 2; // persistent;
 
                 var messagePayload = _messageCodec.EncodeAsByte(message);
-                
+
                 _retryPolicy.Execute(() =>
                 {
                     channel.BasicPublish(

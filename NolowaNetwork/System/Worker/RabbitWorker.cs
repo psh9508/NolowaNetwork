@@ -13,10 +13,10 @@ namespace NolowaNetwork.System.Worker
 
         // 서버단에서 구현되어 처리 된다.
         private readonly IMessageHandler _messageHandler;
-        private readonly INolowaNetworkClient _nolowaNetwork;
+        private readonly IMessageQueue _nolowaNetwork;
 
 
-        public RabbitWorker(IMessageHandler messageHandler, INolowaNetworkClient nolowaNetwork, IMessageCodec messageCodec) : base(messageCodec)
+        public RabbitWorker(IMessageHandler messageHandler, IMessageQueue nolowaNetwork, IMessageCodec messageCodec) : base(messageCodec)
         {
             _messageHandler = messageHandler;
             _nolowaNetwork = nolowaNetwork;

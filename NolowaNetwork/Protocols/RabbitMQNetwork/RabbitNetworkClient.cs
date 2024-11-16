@@ -13,7 +13,7 @@ using Serilog;
 
 namespace NolowaNetwork.Protocols.RabbitMQNetwork
 {
-    public partial class RabbitNetworkClient : INolowaNetworkClient
+    public partial class RabbitNetworkClient : IMessageQueue
     {
         private const int RETRY_COUNT = 4;
         private readonly Random _random = new Random();

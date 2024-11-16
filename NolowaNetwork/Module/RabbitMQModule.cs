@@ -14,7 +14,7 @@ namespace NolowaNetwork.Module
                 .OnActivated(async x => await x.Instance.StartAsync(CancellationToken.None))
                 .SingleInstance();
 
-            builder.RegisterType<RabbitNetworkClient>().As<INolowaNetworkClient>().SingleInstance();
+            builder.RegisterType<RabbitNetworkClient>().As<IMessageQueue>().SingleInstance();
             builder.RegisterType<MessageMaker>().As<IMessageMaker>();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();

@@ -45,7 +45,7 @@ namespace TestConsoleClientApp
 
             var serverSettingModel = configuration.GetSection("Network").GetSection("RabbitMQ").Get<NetworkConfigurationModel>();
 
-            var rabbitNetwork = container.Resolve<IMessageQueue>();
+            var rabbitNetwork = container.Resolve<IMessageBus>();
             rabbitNetwork.Connect(serverSettingModel);
 
             await StartTakeMessageTest(messageBroker, messageCodec, messageMaker, serverSettingModel);

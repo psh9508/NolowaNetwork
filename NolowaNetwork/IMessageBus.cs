@@ -3,7 +3,7 @@ using NolowaNetwork.Models.Message;
 
 namespace NolowaNetwork
 {
-    public interface IMessageQueue
+    public interface IMessageBus
     {
         bool Connect(NetworkConfigurationModel configuration);
         void Send<T>(T message) where T : NetMessageBase;

@@ -55,13 +55,10 @@ namespace NolowaNetwork.Protocols.RabbitMQNetwork
             var factory = new ConnectionFactory
             {
                 HostName = setting.Address,
-                VirtualHost = setting.HostName,
-                Port = 5672,
-                UserName = "admin",
-                Password = "admin",
-                //Port = 30501,
-                //UserName = "owadmin",
-                //Password = "owrhksflwk123!",
+                VirtualHost = setting.VirtualHostName,
+                Port = setting.Port,
+                UserName = setting.UserName,
+                Password = setting.Password,
                 DispatchConsumersAsync = true,
             };
 
@@ -199,7 +196,7 @@ namespace NolowaNetwork.Protocols.RabbitMQNetwork
                 return false;
             }
 
-            if (string.IsNullOrEmpty(model.HostName))
+            if (string.IsNullOrEmpty(model.VirtualHostName))
             {
                 return false;
             }

@@ -11,9 +11,9 @@ using System.Net.Sockets;
 using RabbitMQ.Client.Exceptions;
 using Serilog;
 
-namespace NolowaNetwork.RabbitMQNetwork
+namespace NolowaNetwork.Protocols.RabbitMQNetwork
 {
-    public partial class RabbitNetworkClient : INolowaNetworkClient
+    public partial class RabbitNetworkClient : IMessageBus
     {
         private const int RETRY_COUNT = 4;
         private readonly Random _random = new Random();
@@ -55,13 +55,10 @@ namespace NolowaNetwork.RabbitMQNetwork
             var factory = new ConnectionFactory
             {
                 HostName = setting.Address,
-                VirtualHost = setting.HostName,
-                Port = 5672,
-                UserName = "admin",
-                Password = "admin",
-                //Port = 30501,
-                //UserName = "owadmin",
-                //Password = "owrhksflwk123!",
+                VirtualHost = setting.VirtualHostName,
+                Port = setting.Port,
+                UserName = setting.UserName,
+                Password = setting.Password,
                 DispatchConsumersAsync = true,
             };
 
@@ -75,7 +72,7 @@ namespace NolowaNetwork.RabbitMQNetwork
                     _connection = factory.CreateConnection();
                 });
 
-                if(_connection is null || _connection.IsOpen == false)
+                if (_connection is null || _connection.IsOpen == false)
                 {
                     _logger.Error("Connection is null or not opened");
                     return false;
@@ -120,7 +117,7 @@ namespace NolowaNetwork.RabbitMQNetwork
                 properties.DeliveryMode = 2; // persistent;
 
                 var messagePayload = _messageCodec.EncodeAsByte(message);
-                
+
                 _retryPolicy.Execute(() =>
                 {
                     channel.BasicPublish(
@@ -199,7 +196,7 @@ namespace NolowaNetwork.RabbitMQNetwork
                 return false;
             }
 
-            if (string.IsNullOrEmpty(model.HostName))
+            if (string.IsNullOrEmpty(model.VirtualHostName))
             {
                 return false;
             }

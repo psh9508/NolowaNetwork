@@ -88,7 +88,7 @@ namespace TestConsoleApp
             var configuration = container.Resolve<IConfiguration>();
             var serverSettingModel = configuration.GetSection("Network").GetSection("RabbitMQ").Get<NetworkConfigurationModel>();
 
-            var rabbitClient = container.Resolve<INolowaNetworkClient>();
+            var rabbitClient = container.Resolve<IMessageBus>();
             rabbitClient.Connect(serverSettingModel);
 
             Console.ReadKey();

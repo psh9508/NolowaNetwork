@@ -58,8 +58,6 @@ new RabbitMQModule().SetConfiguration(containerBuilder);
 <details>
 <summary>펼쳐 보기</summary>
 
-<br>
-
 ### 리턴이 필요 없는 데이터 전송의 흐름도
 
 <br>

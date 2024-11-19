@@ -69,7 +69,7 @@ new RabbitMQModule().SetConfiguration(containerBuilder);
 
 <br>
 
-![](https://github.com/user-attachments/assets/25129e85-5eb6-4377-8560-864f2c1b8321)
+![](https://github.com/user-attachments/assets/11f6512a-62ea-4bde-90fa-145649370f09)
 
 데이터를 전송할 때 응답을 받을 `Outbox`를 만들고 응답 데이터가 들어올 때까지 기다린다. 전송 될 데이터는 응답이 필요하다는 플래그를 달고 전송된다. 데이터가 타겟 서버로 전송 후 처리가 완료되면 전송 됐던 곳으로 응답을 보낸다. 전송을 했던 서버는 응답을 받게 되고 메시지에서 응답으로 전송됐다는 플레그가 확인되면 핸들링하지 않고 `Outbox`에 데이터를 넣는다. 데이터가 들어가면 대기가 풀리고 받았던 응답을 사용자에게 리턴한다.
 

@@ -62,7 +62,8 @@ new RabbitMQModule().SetConfiguration(containerBuilder);
 
 <br>
 
-![](https://github.com/user-attachments/assets/990a860d-3690-4478-865e-c970ae71a55e)
+![](https://github.com/user-attachments/assets/13d166be-f6f1-469c-9645-95b961a121fe)
+
 
 데이터 전송을 하고 받는 측에서는 메시지의 타입을 분석해 올바른 Handler로 라우팅 해서 메시지를 처리한다.
 

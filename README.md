@@ -1,4 +1,4 @@
-# NolowaNetwork
+ㄴ# NolowaNetwork
 
 다양한 네트워크를 한개의 라이브러리에서 관리할 수 있도록 설계 함
 
@@ -62,10 +62,10 @@ new RabbitMQModule().SetConfiguration(containerBuilder);
 
 <br>
 
-![](https://github.com/user-attachments/assets/13d166be-f6f1-469c-9645-95b961a121fe)
+![](https://github.com/user-attachments/assets/38cf52a7-3c97-406a-8eb7-a779a941f956)
 
 
-데이터 전송을 하고 받는 측에서는 메시지의 타입을 분석해 올바른 Handler로 라우팅 해서 메시지를 처리한다.
+데이터 전송을 `Worker`를 통해 전송하고 받는 측에서는 메시지의 타입을 분석해 올바른 Handler로 라우팅 해서 메시지를 처리한다.
 
 ### 리턴을 받는 데이터 전송의 흐름도
 

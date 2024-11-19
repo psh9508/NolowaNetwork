@@ -50,11 +50,22 @@ namespace TestConsoleApp
 
             var receivedMessage = JsonSerializer.Deserialize<TestMessage>(jsonPayload);
 
+            //await HandleMessageAsync(message, cancellationToken);
+
             using var scope = _scope.BeginLifetimeScope();
 
             var job = scope.Resolve<IJob>();
 
             await job.RunAsync(receivedMessage);
+        }
+
+        public async Task HandleMessageAsync(TestMessage message, CancellationToken cancellationToken)
+        {
+            using var scope = _scope.BeginLifetimeScope();
+
+            var job = scope.Resolve<IJob>();
+
+            await job.RunAsync(message);
         }
     }
 

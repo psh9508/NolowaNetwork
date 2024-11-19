@@ -16,7 +16,8 @@ namespace NolowaNetwork.System.Worker
 
     public abstract class WorkerBase : IWorker
     {
-        private readonly IMessageCodec _codec;
+        //private readonly IMessageCodec _codec;
+        protected readonly IMessageCodec _codec;
 
         private ConcurrentDictionary<string, Channel<NetMessageBase>> _channels = new();
         protected ConcurrentDictionary<string, Channel<NetMessageBase>> _outboxMap = new();

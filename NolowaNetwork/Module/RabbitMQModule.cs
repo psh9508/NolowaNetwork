@@ -1,6 +1,7 @@
 using Autofac;
 using Microsoft.Extensions.Configuration;
-using NolowaNetwork.RabbitMQNetwork;
+using NolowaNetwork.Protocols.Http;
+using NolowaNetwork.Protocols.RabbitMQNetwork;
 using NolowaNetwork.System;
 using NolowaNetwork.System.Worker;
 
@@ -14,7 +15,8 @@ namespace NolowaNetwork.Module
                 .OnActivated(async x => await x.Instance.StartAsync(CancellationToken.None))
                 .SingleInstance();
 
-            builder.RegisterType<RabbitNetworkClient>().As<INolowaNetworkClient>().SingleInstance();
+            builder.RegisterType<RabbitNetworkClient>().As<IMessageBus>().SingleInstance();
+            builder.RegisterType<HttpProvider>().As<IHttpProvider>().SingleInstance();
             builder.RegisterType<MessageMaker>().As<IMessageMaker>();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
             builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();

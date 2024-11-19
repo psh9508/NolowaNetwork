@@ -107,7 +107,7 @@ namespace NolowaNetwork.Protocols.RabbitMQNetwork
 
         public void Send<T>(T message) where T : NetMessageBase
         {
-            var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
+            var routingKey = $"{_serverName}.{message.Destination}.{message.MessageType}";
 
             try
             {

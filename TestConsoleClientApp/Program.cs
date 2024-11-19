@@ -10,6 +10,29 @@ using Serilog;
 
 namespace TestConsoleClientApp
 {
+    public class TypeResolver : IMessageTypeResolver
+    {
+        public void AddType(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Type? GetType(string typeName)
+        {
+            if (typeName is "TestMessage")
+                return typeof(TestMessage);
+            else if (typeName is "ResponseMessage")
+                return typeof(ResponseMessage);
+
+            return null;
+        }
+
+        public dynamic GetTypeByDynamic(string typeName)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class MessageHandler : IMessageHandler
     {
         public Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
@@ -25,6 +48,7 @@ namespace TestConsoleClientApp
             Console.WriteLine("Hello, World!");
 
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<TypeResolver>().As<IMessageTypeResolver>();
             containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
 
             Log.Logger = new LoggerConfiguration()
@@ -46,7 +70,12 @@ namespace TestConsoleClientApp
             var serverSettingModel = configuration.GetSection("Network").GetSection("RabbitMQ").Get<NetworkConfigurationModel>();
 
             var rabbitNetwork = container.Resolve<IMessageBus>();
-            rabbitNetwork.Connect(serverSettingModel);
+            bool connectResult = rabbitNetwork.Connect(serverSettingModel);
+
+            if(connectResult == false)
+            {
+                throw new Exception("message queue 연결 실패");
+            }
 
             await StartTakeMessageTest(messageBroker, messageCodec, messageMaker, serverSettingModel);
             //StartSendMessageTest(messageBroker, messageMaker);

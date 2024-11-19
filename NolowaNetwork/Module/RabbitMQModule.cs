@@ -19,8 +19,9 @@ namespace NolowaNetwork.Module
             builder.RegisterType<HttpProvider>().As<IHttpProvider>().SingleInstance();
             builder.RegisterType<MessageMaker>().As<IMessageMaker>();
             builder.RegisterType<MessageCodec>().As<IMessageCodec>();
-            builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>();
             builder.RegisterType<MessageBroker>().As<IMessageBroker>().InstancePerLifetimeScope();
+            //builder.RegisterType<MessageTypeResolver>().As<IMessageTypeResolver>(); // 각 서버에서 등록해야한다.
+            //builder.RegisterType<MessageHandler>().As<IMessageHandler>();           // 각 서버에서 등록해야한다.
 
             SetConfiguration(builder);
         }

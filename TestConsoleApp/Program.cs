@@ -11,6 +11,29 @@ using System.Text.Json;
 
 namespace TestConsoleApp
 {
+    public class TypeResolver : IMessageTypeResolver
+    {
+        public void AddType(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Type? GetType(string typeName)
+        {
+            if (typeName is "TestMessage")
+                return typeof(TestMessage);
+            else if (typeName is "ResponseMessage")
+                return typeof(ResponseMessage);
+
+            return null;
+        }
+
+        public dynamic GetTypeByDynamic(string typeName)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class MessageHandler : IMessageHandler
     {
         private readonly ILifetimeScope _scope;
@@ -71,6 +94,7 @@ namespace TestConsoleApp
             Console.WriteLine("Hello, World!");
 
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<TypeResolver>().As<IMessageTypeResolver>();
             containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
             containerBuilder.RegisterType<Job>().As<IJob>();
 

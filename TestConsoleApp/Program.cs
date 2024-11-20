@@ -43,20 +43,9 @@ namespace TestConsoleApp
             _scope = scope;
         }
 
-        public async Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
+        public async Task HandleAsync(dynamic message, CancellationToken cancellationToken)
         {
-            string messageType = message.MessageType;
-            string jsonPayload = message.JsonPayload;
-
-            var receivedMessage = JsonSerializer.Deserialize<TestMessage>(jsonPayload);
-
-            //await HandleMessageAsync(message, cancellationToken);
-
-            using var scope = _scope.BeginLifetimeScope();
-
-            var job = scope.Resolve<IJob>();
-
-            await job.RunAsync(receivedMessage);
+            await HandleMessageAsync(message, cancellationToken);
         }
 
         public async Task HandleMessageAsync(TestMessage message, CancellationToken cancellationToken)
@@ -111,7 +100,7 @@ namespace TestConsoleApp
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .CreateLogger();
+                .CreateLogger(); 
 
             containerBuilder.RegisterInstance(Log.Logger);
 

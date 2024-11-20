@@ -35,7 +35,7 @@ namespace TestConsoleClientApp
 
     public class MessageHandler : IMessageHandler
     {
-        public Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
+        public Task HandleAsync(dynamic message, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

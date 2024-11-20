@@ -120,7 +120,7 @@ namespace NolowaNetwork.System.Worker
 
                 await QueueMessageAsync(ERabbitWorkerType.SENDER.ToString(), message, cancellationToken);
 
-                var responseMessage = await registeredOutbox.Reader.ReadAsync(cancellationToken);
+                var responseMessage = await registeredOutbox.Reader.ReadAsync(cancellationToken) as T;
 
                 if(responseMessage is null)
                 {
@@ -128,7 +128,7 @@ namespace NolowaNetwork.System.Worker
                     return null;
                 }
 
-                return _codec.DecodeJson<T>(responseMessage);
+                return responseMessage;
             }
             catch (Exception ex)
             {

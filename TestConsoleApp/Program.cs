@@ -11,6 +11,29 @@ using System.Text.Json;
 
 namespace TestConsoleApp
 {
+    public class TypeResolver : IMessageTypeResolver
+    {
+        public void AddType(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Type? GetType(string typeName)
+        {
+            if (typeName is "TestMessage")
+                return typeof(TestMessage);
+            else if (typeName is "ResponseMessage")
+                return typeof(ResponseMessage);
+
+            return null;
+        }
+
+        public dynamic GetTypeByDynamic(string typeName)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class MessageHandler : IMessageHandler
     {
         private readonly ILifetimeScope _scope;
@@ -20,18 +43,18 @@ namespace TestConsoleApp
             _scope = scope;
         }
 
-        public async Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken)
+        public async Task HandleAsync(dynamic message, CancellationToken cancellationToken)
         {
-            string messageType = message.MessageType;
-            string jsonPayload = message.JsonPayload;
+            await HandleMessageAsync(message, cancellationToken);
+        }
 
-            var receivedMessage = JsonSerializer.Deserialize<TestMessage>(jsonPayload);
-
+        public async Task HandleMessageAsync(TestMessage message, CancellationToken cancellationToken)
+        {
             using var scope = _scope.BeginLifetimeScope();
 
             var job = scope.Resolve<IJob>();
 
-            await job.RunAsync(receivedMessage);
+            await job.RunAsync(message);
         }
     }
 
@@ -71,12 +94,13 @@ namespace TestConsoleApp
             Console.WriteLine("Hello, World!");
 
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<TypeResolver>().As<IMessageTypeResolver>();
             containerBuilder.RegisterType<MessageHandler>().As<IMessageHandler>();
             containerBuilder.RegisterType<Job>().As<IJob>();
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .CreateLogger();
+                .CreateLogger(); 
 
             containerBuilder.RegisterInstance(Log.Logger);
 

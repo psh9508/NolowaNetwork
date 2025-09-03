@@ -4,6 +4,6 @@ namespace NolowaNetwork.System.Worker
 {
     public interface IMessageHandler
     {
-        Task HandleAsync(NetMessageBase message, CancellationToken cancellationToken);
+        Task HandleAsync(dynamic message, CancellationToken cancellationToken);
     }
 }

@@ -14,12 +14,13 @@ namespace NolowaNetwork.System.Worker
         // 서버단에서 구현되어 처리 된다.
         private readonly IMessageHandler _messageHandler;
         private readonly IMessageBus _nolowaNetwork;
+        private readonly IMessageTypeResolver _messageTypeResolver;
 
-
-        public RabbitWorker(IMessageHandler messageHandler, IMessageBus nolowaNetwork, IMessageCodec messageCodec) : base(messageCodec)
+        public RabbitWorker(IMessageHandler messageHandler, IMessageBus nolowaNetwork, IMessageTypeResolver messageTypeResolver, IMessageCodec messageCodec) : base(messageCodec)
         {
             _messageHandler = messageHandler;
             _nolowaNetwork = nolowaNetwork;
+            _messageTypeResolver = messageTypeResolver;
 
             AddChannel(ERabbitWorkerType.RECEIVER.ToString(), Channel.CreateBounded<NetMessageBase>(new BoundedChannelOptions(1000)
             {
@@ -49,16 +50,28 @@ namespace NolowaNetwork.System.Worker
         // 받는 메시지 큐
         private async Task ReceiveInternalAsync(NetReceiveMessage message, CancellationToken cancellationToken)
         {
-            if (message.IsResponsMessage)
+            try
             {
-                await TakeBackResponseMessage(message.TakeId, message, cancellationToken);
-            }
-            else
-            {
-                if (_messageHandler is null)
-                    throw new InvalidOperationException("IMessageHandler is null. It must be registered before you start.");
+                var messageType = _messageTypeResolver.GetType(message.MessageType);
 
-                await _messageHandler.HandleAsync(message, cancellationToken).ConfigureAwait(false);
+                var decodeMethod = _codec.GetType().GetMethod("DecodeJson")!.MakeGenericMethod(messageType);
+                dynamic? decodedMessage = decodeMethod.Invoke(_codec, [message]);
+
+                if (message.IsResponsMessage)
+                {
+                    await TakeBackResponseMessage(message.TakeId, decodedMessage, cancellationToken);
+                }
+                else
+                {
+                    if (_messageHandler is null)
+                        throw new InvalidOperationException("IMessageHandler is null. It must be registered before you start.");
+
+                    await _messageHandler.HandleAsync(decodedMessage, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

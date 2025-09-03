@@ -107,7 +107,10 @@ namespace NolowaNetwork.Protocols.RabbitMQNetwork
 
         public void Send<T>(T message) where T : NetMessageBase
         {
-            var routingKey = $"{_serverName}.{message.Destination}.{message.MessageType}";
+            if (_connection == null)
+                throw new InvalidOperationException("It can't be called before the connection is set.");
+
+            var routingKey = $"{_serverName}.{message.Destination}.{nameof(NetSendMessage)}";
 
             try
             {
